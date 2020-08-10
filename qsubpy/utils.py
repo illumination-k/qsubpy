@@ -89,7 +89,7 @@ def make_sh_file(cmd, mem, slot, name, ls_pattern, common_variables=None):
     """
     from qsubpy import templates
 
-    if ls_pattern is None:
+    if ls_pattern is not None:
         files = ls(ls_pattern=ls_pattern)
     else:
         files=None    
@@ -100,8 +100,8 @@ def make_sh_file(cmd, mem, slot, name, ls_pattern, common_variables=None):
 
     if name is None:
         name = make_uuid()
-        if not name.endswith(".sh"):
-            name += ".sh"
+    if not name.endswith(".sh"):
+        name += ".sh"
 
     with open(name, "w") as f:
         f.write("\n".join(script))

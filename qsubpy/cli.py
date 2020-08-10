@@ -68,6 +68,7 @@ def __main__():
         sys.exit(0)
 
     if args.setting is not None:
+        run.setting_mode(args.setting)
         sys.exit(0)
     
     logger.error("--command, --settings or --file is need")

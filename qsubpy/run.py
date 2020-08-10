@@ -29,7 +29,7 @@ def setting_mode(path):
     start_time = time.time()
 
     with open(path, 'r') as f:
-        settings = yaml.load(f)
+        settings = yaml.safe_load(f)
     
     defalut_mem = settings.get("default_mem")
     default_slot = settings.get("default_slot")
@@ -37,7 +37,7 @@ def setting_mode(path):
     remove = settings.get("remove")
     dry_run = settings.get("dry_run")
 
-    for stage in settings['stage']:
+    for stage in settings['stages']:
         logger.info(f'start {stage}')
         stage_start = time.time()
         # get params
@@ -76,4 +76,4 @@ def setting_mode(path):
     time_dict["job_proceeded_time"] = end_time - start_time
     with open("time.log", 'w') as f:
         for k, v in time_dict.items():
-            f.write(k + ":", v + "\n")
+            f.write(k + ":" + str(v) + "\n")
