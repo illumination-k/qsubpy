@@ -33,6 +33,7 @@ def make_common_variables_params(common_variables):
     ret = []
     for k, v in common_variables.items():
         ret.append(k + "=" + str(v))
+    return ret
 
 
 def make_params(mem, slot, files=None, common_variables=None):

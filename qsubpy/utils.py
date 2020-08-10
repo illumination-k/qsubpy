@@ -94,7 +94,7 @@ def make_sh_file(cmd, mem, slot, name, ls_pattern, common_variables=None):
     else:
         files=None    
         
-    script = templates.make_templates(mem, slot, files)
+    script = templates.make_templates(mem, slot, files, common_variables)
 
     script += cmd
 

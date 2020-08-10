@@ -34,6 +34,7 @@ def setting_mode(path):
     defalut_mem = settings.get("default_mem")
     default_slot = settings.get("default_slot")
     common_varialbes = settings.get("common_variables")
+
     remove = settings.get("remove")
     dry_run = settings.get("dry_run")
 
