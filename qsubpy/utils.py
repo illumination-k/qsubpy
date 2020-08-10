@@ -13,14 +13,16 @@ def wildcard2re(pattern):
 
 def ls(arg=None, pattern=None):
     files = os.listdir(".")
+
+    if arg == "-d":
+        files = [ f for f in files if os.path.isdir(f) ]
+
     if pattern is not None:
         # convert wild card to re
         pattern = wildcard2re(pattern)
         prog = re.compile(pattern)
-    if arg == "-d":
-        files = [ f for f in files if os.path.isdir(f) ]
+        files = [ f for f in files if prog.search(f) is not None ]
 
-    files = [ f for f in files if prog.search(f) is not None ]
     return files
 
 
@@ -39,13 +41,13 @@ def read_sh(path):
     return lines
 
 
-def make_sh_file(cmd, mem, name, ls):
+def make_sh_file(cmd, mem, name, ls_pattern):
     from qsubpy import templates
 
-    if ls is None:
+    if ls_pattern is None:
         script = templates.make_default_templates(mem, slot)
     else:
-        files = ls(ls)
+        files = ls(pattern=ls_pattern)
         script = templates.make_array_templates(mem, slot, files)
 
     script += cmd
@@ -55,3 +57,5 @@ def make_sh_file(cmd, mem, name, ls):
 
     with open(name, "w") as f:
         f.write("\n".join(script))
+    
+    return name
