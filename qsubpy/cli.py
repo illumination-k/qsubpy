@@ -39,6 +39,7 @@ def __main__():
     parser.add_argument("-n", "--name", type=str, default=None)
     parser.add_argument("--remove", action="store_true")
     parser.add_argument("--ls", type=str, default=None, help="pattern of ls, translate to array job. You can use file variable in command or the sh file.")
+    parser.add_argument("--dry_run", action="store_true", help="Only make sh files for qsub. not run.")
     parser.add_argument("--log_level", default="info", choices=["error", "warning", "warn", "info", "debug"])
 
     # subparsers

@@ -73,31 +73,35 @@ def read_sh(path):
     return lines
 
 
-def make_sh_file(cmd, mem, slot, name, ls_pattern):
+def make_sh_file(cmd, mem, slot, name, ls_pattern, common_variables=None):
     """
     make sh file with qsub options. return generated file name.
 
     Args:
         cmd (list): command list
-        mem (str): required memory, eg. 4G
-        slot (str): required slot, eg. 1
+        mem (str): required memory, eg., 4G
+        slot (str): required slot, eg., 1
         name (str): job name
-        ls_pattern (str): mimic ls. eg. /path/to/*.py 
+        ls_pattern (str): mimic ls eg., /path/to/*.py
+        common_variables (dict): common variable in bash script. 
     Returns:
         str: generated file name
     """
     from qsubpy import templates
 
     if ls_pattern is None:
-        script = templates.make_default_templates(mem, slot)
-    else:
         files = ls(ls_pattern=ls_pattern)
-        script = templates.make_array_templates(mem, slot, files)
+    else:
+        files=None    
+        
+    script = templates.make_templates(mem, slot, files)
 
     script += cmd
 
     if name is None:
-        name = make_uuid() + ".sh"
+        name = make_uuid()
+        if not name.endswith(".sh"):
+            name += ".sh"
 
     with open(name, "w") as f:
         f.write("\n".join(script))

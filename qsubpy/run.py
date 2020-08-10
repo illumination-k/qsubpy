@@ -7,7 +7,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 def command_mode(cmd, mem, slot, name, ls):
-    name = utils.make_sh_file([cmd], mem, slot, name, ls)
+    name = utils.make_sh_file([cmd+"\n"], mem, slot, name, ls)
 
     subprocess.run(["qsub", name])
     # os.remove(name)

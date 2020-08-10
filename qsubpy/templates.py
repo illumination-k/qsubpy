@@ -11,21 +11,10 @@ BODY = [
 ]
 
 
-def make_params(mem, slot):
-    mem_param = f'#$ -l s_vmem={mem} -l mem_req={mem}'
-    slot_param = f'#$ -pe def_slot {slot}'
-    return [mem_param, slot_param]
+def make_array_params(files):
+    if files is None:
+        return []
 
-
-def make_default_templates(mem, slot, **kwarg):
-    params = make_params(mem, slot)
-    script = HEADER + params + BODY
-
-    return script
-
-
-def make_array_templates(mem, slot, files):
-    params = make_params(mem, slot)
     files_num = len(files)
     array_param = f'#$ -t 1-{files_num}:1'
 
@@ -34,6 +23,32 @@ def make_array_templates(mem, slot, files):
     # file=${file_list[$(($SGE_TASK_ID-1))]}
     file_list = "file_list=(" + " ".join(files) + ")" 
     file = "file=${file_list[$(($SGE_TASK_ID-1))]}"
+    return [array_param, file_list, file]
 
-    script = HEADER + params + [array_param, file_list, file] + BODY
+
+def make_common_variables_params(common_variables):
+    if common_variables is None:
+        return []
+
+    ret = []
+    for k, v in common_variables.items():
+        ret.append(k + "=" + str(v))
+
+
+def make_params(mem, slot, files=None, common_variables=None):
+    mem_param = f'#$ -l s_vmem={mem} -l mem_req={mem}'
+    slot_param = f'#$ -pe def_slot {slot}'
+    ret = [mem_param, slot_param]
+
+    ret += make_array_params(files)
+    ret += make_common_variables_params(common_variables)
+    ret.append("\n")
+
+    return ret
+
+
+def make_templates(mem, slot, files=None, common_variables=None):
+    params = make_params(mem, slot, files, common_variables)
+    script = HEADER + params + BODY
+
     return script
