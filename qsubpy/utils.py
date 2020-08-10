@@ -88,7 +88,7 @@ def make_sh_file(cmd, mem, slot, name, ls_pattern):
     if ls_pattern is None:
         script = templates.make_default_templates(mem, slot)
     else:
-        files = ls(pattern=ls_pattern)
+        files = ls(ls_pattern=ls_pattern)
         script = templates.make_array_templates(mem, slot, files)
 
     script += cmd
