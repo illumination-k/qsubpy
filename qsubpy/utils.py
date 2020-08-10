@@ -17,6 +17,7 @@ def wildcard2re(pattern):
     pattern = pattern.replace("*", ".*")
     pattern = pattern.replace("[!", '[^')
     # TODO! {,} -> {|}
+    pattern = "^" + pattern + "$"
     return pattern
 
 

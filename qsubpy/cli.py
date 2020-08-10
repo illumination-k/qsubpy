@@ -37,6 +37,7 @@ def __main__():
     parser.add_argument("--mem", type=str, default="4G")
     parser.add_argument("--slot", type=str, default="1")
     parser.add_argument("-n", "--name", type=str, default=None)
+    parser.add_argument("--remove", action="store_true")
     parser.add_argument("--ls", type=str, default=None, help="pattern of ls, translate to array job. You can use file variable in command or the sh file.")
     parser.add_argument("--log_level", default="info", choices=["error", "warning", "warn", "info", "debug"])
 
