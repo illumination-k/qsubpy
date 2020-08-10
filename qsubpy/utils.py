@@ -52,7 +52,7 @@ def make_uuid():
         str: uuid4
     """
     import uuid
-    return str(uuid.uuid4())
+    return "tmp_" + str(uuid.uuid4())
 
 
 def read_sh(path):
