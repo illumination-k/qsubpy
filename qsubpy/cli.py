@@ -1,6 +1,7 @@
 import argparse
 import subprocess
 import sys
+import os
 
 import logging
 logger = logging.getLogger(__name__)
@@ -12,8 +13,8 @@ def __main__():
     parser.add_argument("-c", "--command", type=str, default=None)
     parser.add_argument("-f", "--file", type=str, default=None)
     parser.add_argument("-s", "--setting", type=str, default=None)
-    parser.add_argument("-m", "--mem", type=str, default="4G")
-    parser.add_argument("-s", "--slot", type=str, default="1")
+    parser.add_argument("--mem", type=str, default="4G")
+    parser.add_argument("--slot", type=str, default="1")
     parser.add_argument("-n", "--name", type=str, default=None)
     parser.add_argument("--ls", type=str, default=None, help="pattern of ls, translate to array job. You can use file variable in command or the sh file.")
     args = parser.parse_args()
@@ -23,6 +24,8 @@ def __main__():
         sys.exit(0)
     
     if args.file is not None:
+        if not os.path.exists(args.file):
+            raise IOError(f'{args.file} does not exists!')
         run.file_mode(args.file, args.mem, args.slot, args.name, args.ls)
         sys.exit(0)
 

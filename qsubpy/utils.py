@@ -41,7 +41,7 @@ def read_sh(path):
     return lines
 
 
-def make_sh_file(cmd, mem, name, ls_pattern):
+def make_sh_file(cmd, mem, slot, name, ls_pattern, sep=" "):
     from qsubpy import templates
 
     if ls_pattern is None:
@@ -50,7 +50,7 @@ def make_sh_file(cmd, mem, name, ls_pattern):
         files = ls(pattern=ls_pattern)
         script = templates.make_array_templates(mem, slot, files)
 
-    script += cmd
+    script.append(sep.join(cmd))
 
     if name is None:
         name = make_uuid() + ".sh"
