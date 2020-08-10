@@ -33,7 +33,9 @@ def setting_mode(path):
     
     defalut_mem = settings.get("default_mem")
     default_slot = settings.get("default_slot")
+    common_varialbes = settings.get("common_variables")
     remove = settings.get("remove")
+    dry_run = settings.get("dry_run")
 
     for stage in settings['stage']:
         logger.info(f'start {stage}')
@@ -46,18 +48,23 @@ def setting_mode(path):
         
         # get cmd and run qsub by sync mode to keep in order
         cmd = stage.get('cmd')
+
         if cmd is not None:
-            name = utils.make_sh_file([cmd], mem, slot, name, ls_patten)
-            sync_qsub(name)
+            name = utils.make_sh_file([cmd], mem, slot, name, ls_patten, common_varialbes)
+            
+            if dry_run is None:
+                sync_qsub(name)
         else:
             path = stage.get('file')
             if path is None:
                 raise RuntimeError("cmd or file is required in each stage!")
             cmd = utils.read_sh(path)
-            name = utils.make_sh_file(cmd, mem, slot, name, ls_patten)
-            sync_qsub(name)
+            name = utils.make_sh_file(cmd, mem, slot, name, ls_patten, common_varialbes)
+            
+            if dry_run is None:
+                sync_qsub(name)
 
-        if remove:
+        if remove and dry_run is None:
             os.remove(name)
 
         stage_end = time.time()

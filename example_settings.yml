@@ -4,6 +4,9 @@ default_mem: 4G
 default_slot: 1
 remove: True
 
+common_variable:
+  - fasta: /path/to/fasta
+
 stages:
   - name: stage1
     file: /path/to/sh_file
