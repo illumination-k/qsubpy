@@ -30,6 +30,8 @@ def ls(arg=None, ls_pattern=None):
         list: files list in ls_pattern
     """
     dir_path, pattern = os.path.split(ls_pattern)
+    if dir_path == '':
+        dir_path = os.getcwd()
     files = os.listdir(dir_path)
 
     if arg == "-d":
