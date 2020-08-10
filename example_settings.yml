@@ -1,0 +1,20 @@
+job_name: "example"
+
+default_mem: 4G
+default_slot: 1
+remove: True
+
+stages:
+  - name: stage1
+    file: /path/to/sh_file
+
+  - name: stage2
+    cmd: echo "hello, world"
+    mem: 4G
+    slot: 1
+
+  - name: stage3
+    cmd: echo cat $file
+    mem: 4G
+    slot: 1
+    ls: "*.py"
