@@ -1,5 +1,16 @@
 # Utility for qsub of UGE
 
+## Installation
+
+`pip install --user git+https://github.com/illumination-k/qsubpy`
+
+If not work, please try below..., 
+
+```
+git clone https://github.com/illumination-k/qsubpy.git
+cd qsubpy
+pip install -e .
+```
 
 ## Usage
 

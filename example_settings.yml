@@ -5,7 +5,7 @@ default_slot: 1
 remove: True
 
 common_variable:
-  - fasta: /path/to/fasta
+  fasta: /path/to/fasta
 
 stages:
   - name: stage1

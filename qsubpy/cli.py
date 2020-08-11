@@ -58,13 +58,13 @@ def __main__():
     args = parser.parse_args()
 
     if args.command is not None:
-        run.command_mode(args.command, args.mem, args.slot, args.name, args.ls)
+        run.command_mode(args.command, args.mem, args.slot, args.name, args.ls, args.dry_run)
         sys.exit(0)
     
     if args.file is not None:
         if not os.path.exists(args.file):
             raise IOError(f'{args.file} does not exists!')
-        run.file_mode(args.file, args.mem, args.slot, args.name, args.ls)
+        run.file_mode(args.file, args.mem, args.slot, args.name, args.ls, args.dry_run)
         sys.exit(0)
 
     if args.setting is not None:
