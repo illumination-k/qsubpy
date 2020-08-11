@@ -65,7 +65,7 @@ def setting_mode(path):
             if dry_run is None:
                 sync_qsub(name)
 
-        if remove and dry_run is None:
+        if remove and (dry_run is None or not dry_run):
             os.remove(name)
 
         stage_end = time.time()
