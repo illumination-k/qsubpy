@@ -9,7 +9,7 @@ common_variable:
 
 stages:
   - name: stage1
-    file: /path/to/sh_file
+    cmd: echo $fasta
 
   - name: stage2
     cmd: echo "hello, world"
