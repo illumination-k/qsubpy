@@ -70,3 +70,11 @@ echo $file
 ```bash
 nohup qsubpy -s settings.yml &
 ```
+
+### Dry Run
+
+if you use `--dry_run` flag, qsubpy generates sh files only.
+
+```bash
+qsubpy -c 'echo hello' --dry_run
+```
