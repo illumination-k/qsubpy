@@ -40,7 +40,7 @@ def setting_mode(path, dry_run):
     remove = settings.get("remove")
 
     logger.debug("start qsubpy with setting mode")
-    logger.info(f'start {name}\n')
+    logger.info(f'start {job_name}\n')
     logger.info(f'-------------')
     logger.info(f'default memory: {defalut_mem}')
     logger.info(f'default slots: {default_slot}')
