@@ -22,7 +22,7 @@ def file_mode(path, mem, slot, name, ls, dry_run):
     # os.remove(name)
 
 
-def setting_mode(path):
+def setting_mode(path, dry_run):
     import yaml
     import time
     from qsubpy.sync_qsub import sync_qsub
@@ -33,12 +33,26 @@ def setting_mode(path):
     with open(path, 'r') as f:
         settings = yaml.safe_load(f)
     
+    job_name = settings.get("name")
     defalut_mem = settings.get("default_mem")
     default_slot = settings.get("default_slot")
     common_varialbes = settings.get("common_variables")
-
     remove = settings.get("remove")
-    dry_run = settings.get("dry_run")
+
+    logger.debug("start qsubpy with setting mode")
+    logger.info(f'start {name}\n')
+    logger.info(f'-------------')
+    logger.info(f'default memory: {defalut_mem}')
+    logger.info(f'default slots: {default_slot}')
+
+    if not dry_run:
+        dry_run = settings.get("dry_run")
+
+    if dry_run:
+        logger.info(f'dry_run is True, only generated sh files...')
+
+    if remove and (dry_run is None or not dry_run):
+        logger.info(f'remove is True, when job is finished with exit code 0, remove log files and sh file')
 
     for stage in settings['stages']:
         logger.info(f'start {stage}')
@@ -55,7 +69,7 @@ def setting_mode(path):
         if cmd is not None:
             name = utils.make_sh_file([cmd], mem, slot, name, ls_patten, common_varialbes)
             
-            if dry_run is None:
+            if dry_run is None or not dry_run:
                 sync_qsub(name)
         else:
             path = stage.get('file')
@@ -64,7 +78,7 @@ def setting_mode(path):
             cmd = utils.read_sh(path)
             name = utils.make_sh_file(cmd, mem, slot, name, ls_patten, common_varialbes)
             
-            if dry_run is None:
+            if dry_run is None or not dry_run:
                 sync_qsub(name)
 
         if remove and (dry_run is None or not dry_run):

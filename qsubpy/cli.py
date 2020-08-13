@@ -28,19 +28,19 @@ class ColorfulHandler(logging.StreamHandler):
 
 
 def __main__():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(help='wrapper for qsub of UGE. easy to use array job and build workflow.')
     
     # main parsers
-    parser.add_argument("-c", "--command", type=str, default=None)
-    parser.add_argument("-f", "--file", type=str, default=None)
-    parser.add_argument("-s", "--setting", type=str, default=None)
-    parser.add_argument("--mem", type=str, default="4G")
-    parser.add_argument("--slot", type=str, default="1")
-    parser.add_argument("-n", "--name", type=str, default=None)
+    parser.add_argument("-c", "--command", type=str, default=None, help='run qusbpy with command mode')
+    parser.add_argument("-f", "--file", type=str, default=None, help='run qsubpy with file mode')
+    parser.add_argument("-s", "--setting", type=str, default=None, help='run qsubpy with settings mode')
+    parser.add_argument("--mem", type=str, default="4G", help='default memory')
+    parser.add_argument("--slot", type=str, default="1", help='default slots')
+    parser.add_argument("-n", "--name", type=str, default=None, help='job name')
     parser.add_argument("--remove", action="store_true")
     parser.add_argument("--ls", type=str, default=None, help="pattern of ls, translate to array job. You can use file variable in command or the sh file.")
     parser.add_argument("--dry_run", action="store_true", help="Only make sh files for qsub. not run.")
-    parser.add_argument("--log_level", default="info", choices=["error", "warning", "warn", "info", "debug"])
+    parser.add_argument("--log_level", default="info", choices=["error", "warning", "warn", "info", "debug"], help="set log level")
 
     # subparsers
     subparsers = parser.add_subparsers()
@@ -52,10 +52,25 @@ def __main__():
     generate_yaml_parser.add_argument("--stage_num", type=int, default=3)
     generate_yaml_parser.add_argument("--mem", type=str, default="4G", help="set default mem")
     generate_yaml_parser.add_argument("--slot", type=str, default="1", help="set default slot")
-    ##
+    ## set handler
     generate_yaml_parser.set_defaults(handler=generate_yaml.parse_args)
     
     args = parser.parse_args()
+
+    # set log level
+    if args.log_level == "error":
+        log_level = logging.ERROR
+    elif args.log_level == "warning":
+        log_level = logging.WARNING
+    elif args.log_level == "warn":
+        log_level = logging.WARN
+    elif args.log_level == "info":
+        log_level = logging.INFO
+    else:
+        log_level = logging.DEBUG
+
+    # set logger
+    logging.basicConfig(handlers=[ColorfulHandler()], level=log_level)
 
     if args.command is not None:
         run.command_mode(args.command, args.mem, args.slot, args.name, args.ls, args.dry_run)
@@ -68,9 +83,13 @@ def __main__():
         sys.exit(0)
 
     if args.setting is not None:
-        run.setting_mode(args.setting)
+        run.setting_mode(args.setting, args.dry_run)
         sys.exit(0)
     
+    # run handler
+    if hasattr(args, 'handler'):
+        args.handler(args)
+
     logger.error("--command, --settings or --file is need")
     parser.print_help()
     sys.exit(1)

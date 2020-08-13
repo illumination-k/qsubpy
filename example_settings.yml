@@ -17,7 +17,7 @@ stages:
     slot: 1
 
   - name: stage3
-    cmd: echo cat $file
+    cmd: echo $file
     mem: 4G
     slot: 1
     ls: "*.py"

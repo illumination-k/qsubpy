@@ -46,8 +46,7 @@ Using in `qsubpy/qsubpy` directory
 qsubpy -c 'echo $file' --ls "*.py"
 ```
 
-You can use file variable in the command
-The below file is generated and run qsub
+You can use file variable in the command. The below file is generated and run qsub
 
 ```bash
 #!/bin/bash
