@@ -28,7 +28,7 @@ class ColorfulHandler(logging.StreamHandler):
 
 
 def __main__():
-    parser = argparse.ArgumentParser(help='wrapper for qsub of UGE. easy to use array job and build workflow.')
+    parser = argparse.ArgumentParser(description='wrapper for qsub of UGE. easy to use array job and build workflow.')
     
     # main parsers
     parser.add_argument("-c", "--command", type=str, default=None, help='run qusbpy with command mode')
