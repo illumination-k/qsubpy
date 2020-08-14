@@ -33,7 +33,7 @@ def setting_mode(path, dry_run):
     with open(path, 'r') as f:
         settings = yaml.safe_load(f)
     
-    job_name = settings.get("name")
+    job_name = settings.get("job_name")
     defalut_mem = settings.get("default_mem")
     default_slot = settings.get("default_slot")
     common_varialbes = settings.get("common_variables")
@@ -55,14 +55,13 @@ def setting_mode(path, dry_run):
         logger.info(f'remove is True, when job is finished with exit code 0, remove log files and sh file')
 
     for stage in settings['stages']:
-        logger.info(f'start {stage}')
         stage_start = time.time()
         # get params
         name = stage.get('name')
         mem = stage.get('mem', defalut_mem)
         slot = stage.get('slot', default_slot)
         ls_patten = stage.get('ls')
-        
+        logger.info(f'start stage: {name}')
         # get cmd and run qsub by sync mode to keep in order
         cmd = stage.get('cmd')
 
