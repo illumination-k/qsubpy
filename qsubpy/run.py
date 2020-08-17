@@ -7,7 +7,12 @@ import logging
 logger = logging.getLogger(__name__)
 
 def command_mode(cmd, mem, slot, name, ls, dry_run):
-    name = utils.make_sh_file([cmd+"\n"], mem, slot, name, ls)
+    name = utils.make_sh_file(
+        cmd=[cmd+"\n"], 
+        mem=mem, 
+        slot=slot, 
+        name=name, 
+        ls_pattern=ls)
 
     if not dry_run:
         subprocess.run(["qsub", name])
@@ -15,7 +20,12 @@ def command_mode(cmd, mem, slot, name, ls, dry_run):
 
 def file_mode(path, mem, slot, name, ls, dry_run):
     cmd = utils.read_sh(path)
-    name = utils.make_sh_file(cmd, mem, slot, name, ls)
+    name = utils.make_sh_file(
+        cmd=cmd, 
+        mem=mem, 
+        slot=slot, 
+        name=name, 
+        ls_pattern=ls)
 
     if not dry_run:
         subprocess.run(["qsub", name])
@@ -66,7 +76,14 @@ def setting_mode(path, dry_run):
         cmd = stage.get('cmd')
 
         if cmd is not None:
-            name = utils.make_sh_file([cmd], mem, slot, name, ls_patten, common_varialbes)
+            name = utils.make_sh_file(
+                cmd=[cmd], 
+                mem=mem, 
+                slot=slot, 
+                name=name, 
+                ls_pattern=ls_patten, 
+                chunks=None,
+                common_variables=common_varialbes)
             
             if dry_run is None or not dry_run:
                 sync_qsub(name)
@@ -75,7 +92,13 @@ def setting_mode(path, dry_run):
             if path is None:
                 raise RuntimeError("cmd or file is required in each stage!")
             cmd = utils.read_sh(path)
-            name = utils.make_sh_file(cmd, mem, slot, name, ls_patten, common_varialbes)
+            name = utils.make_sh_file(cmd=cmd, 
+                mem=mem, 
+                slot=slot, 
+                name=name, 
+                ls_pattern=ls_patten, 
+                chunks=None,
+                common_variables=common_varialbes)
             
             if dry_run is None or not dry_run:
                 sync_qsub(name)
@@ -86,7 +109,8 @@ def setting_mode(path, dry_run):
         stage_end = time.time()
         key = name + "_proceeded_time"
         time_dict[key] = stage_end - stage_start
-        logger.info(f'end {stage}... proceeded time is {time_dict[key]}')
+        logger.info(f'end {stage}...')
+        logger.info(f'proceeded time is {time_dict[key]}')
 
     end_time = time.time()
     time_dict["job_proceeded_time"] = end_time - start_time

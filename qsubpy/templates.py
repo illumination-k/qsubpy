@@ -53,3 +53,22 @@ def make_templates(mem, slot, files=None, common_variables=None):
     script = HEADER + params + BODY
 
     return script
+
+#TODO! implement chunk mode... below is example
+"""
+#!/bin/bash
+
+arrays=(
+    "1 2 3"
+    "11 22 33"
+    "111 222 333"
+)
+
+for array in "${arrays[@]}"; do
+    echo "------------"
+    data=(${array[@]})
+    for a in ${data[@]}; do
+        echo ${a}
+    done
+done
+"""

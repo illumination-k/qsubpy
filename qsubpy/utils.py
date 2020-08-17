@@ -73,7 +73,8 @@ def read_sh(path):
     return lines
 
 
-def make_sh_file(cmd, mem, slot, name, ls_pattern, common_variables=None):
+
+def make_sh_file(cmd, mem, slot, name, ls_pattern, chunks=None, common_variables=None):
     """
     make sh file with qsub options. return generated file name.
 
