@@ -1,0 +1,24 @@
+kind: "SGE"
+
+header:
+  - "#!/bin/bash"
+  - "#$ -S /bin/bash"
+  - "#$ -cwd"
+
+body:
+  - "source ~/.bashrc"
+  - "source ~/.bash_profile"
+  - "set -eu"
+
+resource:
+  replace_word:
+    memory: mem
+    threads: slot
+  
+  header:
+    "#$ -l s_veme={mem} -l mem_req={mem}\n#$ -pe def_slot {slot}"
+
+array_job:
+  id: "SGE_TASK_ID"
+  header: "#$ -t {start}-{end}:{step}"
+  
