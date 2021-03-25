@@ -62,6 +62,7 @@ def setting_mode(path, dry_run):
     logger.info(f"-------------")
     logger.info(f"default memory: {defalut_mem}")
     logger.info(f"default slots: {default_slot}")
+    logger.debug(common_varialbes)
 
     if not dry_run:
         dry_run = settings.get("dry_run")

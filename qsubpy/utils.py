@@ -31,15 +31,15 @@ def read_sh(path):
 
 
 def make_sh_file(
-    cmd,
-    mem,
-    slot,
-    name,
-    ls_pattern=None,
-    array_command=None,
+    cmd: list,
+    mem: str,
+    slot: str,
+    name: str,
+    ls_pattern: str=None,
+    array_command: str=None,
     chunks=None,
     common_variables=None,
-):
+) -> str:
     """
     make sh file with qsub options. return generated file name.
 
