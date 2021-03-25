@@ -53,8 +53,8 @@ def make_sh_file(
     Returns:
         str: generated file name
     """
-    from templates import Template
-    from config import read_config, generate_defulat_config
+    from qsubpy.templates import Template
+    from qsubpy.config import read_config, generate_defulat_config
 
     generate_defulat_config()
     config = read_config()

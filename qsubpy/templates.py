@@ -1,4 +1,4 @@
-from config import Config
+from qsubpy.config import Config
 
 
 class Template:

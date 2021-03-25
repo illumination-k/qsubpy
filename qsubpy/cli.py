@@ -7,8 +7,8 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-import run
-import generate_yaml
+from qsubpy import run
+from qsubpy import generate_yaml
 
 # set color logger
 mapping = {

@@ -2,7 +2,7 @@ import os
 import subprocess
 import argparse
 
-from utils import make_sh_file, read_sh
+from qsubpy.utils import make_sh_file, read_sh
 
 import logging
 
@@ -43,7 +43,7 @@ def file_mode(path, mem, slot, name, ls, dry_run):
 def setting_mode(path, dry_run):
     import yaml
     import time
-    from sync_qsub import sync_qsub
+    from qsubpy.sync_qsub import sync_qsub
 
     time_dict = {}
     start_time = time.time()

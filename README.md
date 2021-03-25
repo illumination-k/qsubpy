@@ -43,10 +43,10 @@ easy to use `for f in $(ls); do qsub script.sh $f; done;` with array job.
 Using in `qsubpy/qsubpy` directory
 
 ```bash
-qsubpy -c 'echo $file' --ls "*.py"
+qsubpy -c 'echo $elem' --ls "*.py"
 ```
 
-You can use file variable in the command. The below file is generated and run qsub
+You can use eleme variable in the command. The below file is generated and run qsub
 
 ```bash
 #!/bin/bash
@@ -54,14 +54,14 @@ You can use file variable in the command. The below file is generated and run qs
 #$ -cwd
 #$ -l s_vmem=4G -l mem_req=4G
 #$ -pe def_slot 1
-#$ -t 1-7:1
-file_list=(__init__.py cli.py templates.py utils.py sync_qsub.py run.py generate_yaml.py)
-file=${file_list[$(($SGE_TASK_ID-1))]}
+#$ -t 1-8:1
+array=($(ls *.py))
+elem=${array[$(($SGE_TASK_ID-1))]}
 
 source ~/.bashrc
 source ~/.bash_profile
 set -eu
-echo $file
+echo $elem
 ```
 
 ### Build Workflow with settings.yml
