@@ -1,3 +1,4 @@
+import os
 import toml
 import subprocess
 
@@ -30,12 +31,6 @@ class Config:
         self.array_params: str = config["arrayjob"]["header"].rstrip("\n")
         self.sync_options: str = config["options"]["sync"]
 
-    def header(self) -> str:
-        return self.header
-
-    def body(self) -> str:
-        return self.body
-
     def resource(self, mem: str = None, slot: str = None) -> str:
         if mem is None:
             mem = self.default_mem
@@ -59,7 +54,11 @@ class Config:
     def sync_qsub_command(self) -> list:
         return ["qsub"] + self.sync_options
 
-def read_config(path: str = "~/.config/qsubpy_config.toml") -> Config:
+def read_config(path: str = None) -> Config:
+    path = os.environ.get("QSUBPY_CONFIG")
+    if path is None:
+        home = os.environ.get("HOME")
+        path = os.path.join(home, ".config", "qsubpy_config.toml")
     config_dict = toml.load(open(path))
 
     return Config(config_dict)
@@ -94,16 +93,16 @@ sync = ["-sync", "y"]
 '''
 
 def generate_defulat_config():
-    import os
     path = os.environ.get("QSUBPY_CONFIG")
+    home = os.environ.get("HOME")
     if path is None:
-        path = "~/.config/qsubpy_config.toml"
+        path = f'{home}/.config/qsubpy_config.toml'
     
     if os.path.exists(path):
         return
 
-    if not os.path.exists("~/.config"):
-        os.makedirs("~/.config")
+    if not os.path.exists(os.path.join(home, ".config")):
+        os.makedirs(os.path.join(home, "config"))
 
     with open(path, "w") as f:
         f.write(SHIROKANE_CONFIG)
