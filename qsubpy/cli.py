@@ -4,6 +4,7 @@ import sys
 import os
 
 import logging
+
 logger = logging.getLogger(__name__)
 
 import run
@@ -21,6 +22,7 @@ mapping = {
     "CRITICAL": "\x1b[0;37;41m[ alert ]\x1b[0m",
 }
 
+
 class ColorfulHandler(logging.StreamHandler):
     def emit(self, record):
         record.levelname = mapping[record.levelname]
@@ -28,34 +30,65 @@ class ColorfulHandler(logging.StreamHandler):
 
 
 def __main__():
-    parser = argparse.ArgumentParser(description='wrapper for qsub of UGE. easy to use array job and build workflow.')
-    
+    parser = argparse.ArgumentParser(
+        description="wrapper for qsub of UGE. easy to use array job and build workflow."
+    )
+
     # main parsers
-    parser.add_argument("-c", "--command", type=str, default=None, help='run qusbpy with command mode')
-    parser.add_argument("-f", "--file", type=str, default=None, help='run qsubpy with file mode')
-    parser.add_argument("-s", "--setting", type=str, default=None, help='run qsubpy with settings mode')
-    parser.add_argument("--mem", type=str, default="4G", help='default memory')
-    parser.add_argument("--slot", type=str, default="1", help='default slots')
-    parser.add_argument("-n", "--name", type=str, default=None, help='job name')
+    parser.add_argument(
+        "-c", "--command", type=str, default=None, help="run qusbpy with command mode"
+    )
+    parser.add_argument(
+        "-f", "--file", type=str, default=None, help="run qsubpy with file mode"
+    )
+    parser.add_argument(
+        "-s", "--setting", type=str, default=None, help="run qsubpy with settings mode"
+    )
+    parser.add_argument("--mem", type=str, default="4G", help="default memory")
+    parser.add_argument("--slot", type=str, default="1", help="default slots")
+    parser.add_argument("-n", "--name", type=str, default=None, help="job name")
     parser.add_argument("--remove", action="store_true")
-    parser.add_argument("--ls", type=str, default=None, help="pattern of ls, translate to array job. You can use elem variable in command or the sh file.")
-    parser.add_argument("--array_cmd", type=str, default=None, help="command for array job. You can use elem variable in command or the sh file.")
-    parser.add_argument("--dry_run", action="store_true", help="Only make sh files for qsub. not run.")
-    parser.add_argument("--log_level", default="info", choices=["error", "warning", "warn", "info", "debug"], help="set log level")
+    parser.add_argument(
+        "--ls",
+        type=str,
+        default=None,
+        help="pattern of ls, translate to array job. You can use elem variable in command or the sh file.",
+    )
+    parser.add_argument(
+        "--array_cmd",
+        type=str,
+        default=None,
+        help="command for array job. You can use elem variable in command or the sh file.",
+    )
+    parser.add_argument(
+        "--dry_run", action="store_true", help="Only make sh files for qsub. not run."
+    )
+    parser.add_argument(
+        "--log_level",
+        default="info",
+        choices=["error", "warning", "warn", "info", "debug"],
+        help="set log level",
+    )
 
     # subparsers
     subparsers = parser.add_subparsers()
-    
+
     # to generate setting file easily
     ## args
-    generate_yaml_parser = subparsers.add_parser("generate_settings", help="generate settings file")
+    generate_yaml_parser = subparsers.add_parser(
+        "generate_settings", help="generate settings file"
+    )
     generate_yaml_parser.add_argument("-o", "--output", type=str, required=True)
     generate_yaml_parser.add_argument("--stage_num", type=int, default=3)
-    generate_yaml_parser.add_argument("--mem", type=str, default="4G", help="set default mem")
-    generate_yaml_parser.add_argument("--slot", type=str, default="1", help="set default slot")
+    generate_yaml_parser.add_argument(
+        "--mem", type=str, default="4G", help="set default mem"
+    )
+    generate_yaml_parser.add_argument(
+        "--slot", type=str, default="1", help="set default slot"
+    )
     ## set handler
     generate_yaml_parser.set_defaults(handler=generate_yaml.parse_args)
-    
+
     args = parser.parse_args()
 
     # set log level
@@ -76,19 +109,19 @@ def __main__():
     if args.command is not None:
         run.command_mode(args)
         sys.exit(0)
-    
+
     if args.file is not None:
         if not os.path.exists(args.file):
-            raise IOError(f'{args.file} does not exists!')
+            raise IOError(f"{args.file} does not exists!")
         run.file_mode(args.file, args.mem, args.slot, args.name, args.ls, args.dry_run)
         sys.exit(0)
 
     if args.setting is not None:
         run.setting_mode(args.setting, args.dry_run)
         sys.exit(0)
-    
+
     # run handler
-    if hasattr(args, 'handler'):
+    if hasattr(args, "handler"):
         args.handler(args)
 
     logger.error("--command, --settings or --file is need")

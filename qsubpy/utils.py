@@ -1,6 +1,7 @@
-
 import logging
+
 logger = logging.getLogger(__name__)
+
 
 def make_uuid():
     """make uuid4
@@ -8,6 +9,7 @@ def make_uuid():
         str: uuid4
     """
     import uuid
+
     return "tmp_" + str(uuid.uuid4())
 
 
@@ -28,8 +30,16 @@ def read_sh(path):
     return lines
 
 
-
-def make_sh_file(cmd, mem, slot, name, ls_pattern=None, array_command=None, chunks=None, common_variables=None):
+def make_sh_file(
+    cmd,
+    mem,
+    slot,
+    name,
+    ls_pattern=None,
+    array_command=None,
+    chunks=None,
+    common_variables=None,
+):
     """
     make sh file with qsub options. return generated file name.
 
@@ -39,24 +49,30 @@ def make_sh_file(cmd, mem, slot, name, ls_pattern=None, array_command=None, chun
         slot (str): required slot, eg., 1
         name (str): job name
         ls_pattern (str): mimic ls eg., /path/to/*.py
-        common_variables (dict): common variable in bash script. 
+        common_variables (dict): common variable in bash script.
     Returns:
         str: generated file name
     """
     from templates import Template
     from config import read_config, generate_defulat_config
+
     generate_defulat_config()
     config = read_config()
-    
+
     template = Template(config)
 
     if ls_pattern is not None and array_command is not None:
         raise ValueError("You use only one of ls or array_command")
-    
+
     if ls_pattern is not None:
         array_command = " ".join(["ls", ls_pattern])
 
-    script = template.make_templates(array_command=array_command, mem=mem, slot=slot, common_variables=common_variables)
+    script = template.make_templates(
+        array_command=array_command,
+        mem=mem,
+        slot=slot,
+        common_variables=common_variables,
+    )
 
     script += cmd
 
@@ -67,5 +83,5 @@ def make_sh_file(cmd, mem, slot, name, ls_pattern=None, array_command=None, chun
 
     with open(name, "w") as f:
         f.write("\n".join(script))
-    
+
     return name

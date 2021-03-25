@@ -2,19 +2,23 @@ import os
 import toml
 import subprocess
 
+
 def bash_array_len(command: str) -> int:
     """array length of bash
     Args:
         command (str): command
     Returns:
         int: length of array in bash
-    
+
     >>> bash_array_len("echo 'a b'")
     2
     """
-    len_command = " ".join([f't=($({command}))', "&&", "echo ${#t[@]}"])
-    proc = subprocess.run(len_command, shell=True, capture_output=True, executable="/bin/bash")
+    len_command = " ".join([f"t=($({command}))", "&&", "echo ${#t[@]}"])
+    proc = subprocess.run(
+        len_command, shell=True, capture_output=True, executable="/bin/bash"
+    )
     return int(proc.stdout)
+
 
 class Config:
     def __init__(self, config: dict):
@@ -36,12 +40,18 @@ class Config:
             mem = self.default_mem
         if slot is None:
             slot = self.default_slot
-        return self.resource_params.replace("{mem}",str(mem)).replace("{slot}", str(slot))
+        return self.resource_params.replace("{mem}", str(mem)).replace(
+            "{slot}", str(slot)
+        )
 
     def array_header_with_cmd(self, command: str) -> tuple:
         length = bash_array_len(command)
-        array_header = self.array_params.replace("{start}", "1").replace("{end}", str(length)).replace("{step}", "1")
-        array = f'array=($({command}))'
+        array_header = (
+            self.array_params.replace("{start}", "1")
+            .replace("{end}", str(length))
+            .replace("{step}", "1")
+        )
+        array = f"array=($({command}))"
         # like following
         # elem=${array[$(($SEG_TASK_ID-1))]}
         elem = "elem=${array[$((" + self.array_job_id + "-1))]}"
@@ -49,6 +59,7 @@ class Config:
 
     def sync_qsub_command(self) -> list:
         return ["qsub"] + self.sync_options
+
 
 def read_config(path: str = None) -> Config:
     path = os.environ.get("QSUBPY_CONFIG")
@@ -58,6 +69,7 @@ def read_config(path: str = None) -> Config:
     config_dict = toml.load(open(path))
 
     return Config(config_dict)
+
 
 SHIROKANE_CONFIG = '''
 [scripts]
@@ -88,12 +100,13 @@ header = "#$ -t {start}-{end}:{step}"
 sync = ["-sync", "y"]
 '''
 
+
 def generate_defulat_config():
     path = os.environ.get("QSUBPY_CONFIG")
     home = os.environ.get("HOME")
     if path is None:
-        path = f'{home}/.config/qsubpy_config.toml'
-    
+        path = f"{home}/.config/qsubpy_config.toml"
+
     if os.path.exists(path):
         return
 
