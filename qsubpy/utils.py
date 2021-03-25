@@ -64,7 +64,7 @@ def make_sh_file(
     if ls_pattern is not None and array_command is not None:
         raise ValueError("You use only one of ls or array_command")
 
-    if ls_pattern is not None:
+    if ls_pattern is not None and array_command is None:
         array_command = " ".join(["ls", ls_pattern])
 
     script = template.make_templates(
