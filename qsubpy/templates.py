@@ -1,4 +1,4 @@
-from .config import Config
+from config import Config
 
 class Template:
     def __init__(self, config: Config):
@@ -30,12 +30,12 @@ class Template:
 
 def make_common_variables_params(common_variables):
     if common_variables is None:
-        return []
+        return ""
 
     ret = []
     for k, v in common_variables.items():
         ret.append(k + "=" + str(v))
-    return ret
+    return "\n".join(ret)
 
 
 #TODO! implement chunk mode... below is example

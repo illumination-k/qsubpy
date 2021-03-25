@@ -43,8 +43,8 @@ def make_sh_file(cmd, mem, slot, name, ls_pattern=None, array_command=None, chun
     Returns:
         str: generated file name
     """
-    from .templates import Template
-    from .config import read_config, generate_defulat_config
+    from templates import Template
+    from config import read_config, generate_defulat_config
     generate_defulat_config()
     config = read_config()
     

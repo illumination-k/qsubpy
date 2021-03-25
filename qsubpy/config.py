@@ -36,7 +36,7 @@ class Config:
             mem = self.default_mem
         if slot is None:
             slot = self.default_slot
-        return self.resource_params.replace("{mem}", mem).replace("{slot}", slot)
+        return self.resource_params.replace("{mem}",str(mem)).replace("{slot}", str(slot))
 
     def array_header_with_cmd(self, command: str) -> tuple:
         length = bash_array_len(command)
@@ -46,10 +46,6 @@ class Config:
         # elem=${array[$(($SEG_TASK_ID-1))]}
         elem = "elem=${array[$((" + self.array_job_id + "-1))]}"
         return array_header, "\n".join([array, elem])
-
-    def array_with_ls(self, ls_pattern: str):
-        ls_command = " ".join(["ls", ls_pattern])
-        return self.array_header_with_cmd(ls_command)
 
     def sync_qsub_command(self) -> list:
         return ["qsub"] + self.sync_options

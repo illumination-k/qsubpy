@@ -1,17 +1,26 @@
 import os
 import subprocess
+import argparse
 
-from qsubpy import utils
+from utils import make_sh_file, read_sh
 
 import logging
 logger = logging.getLogger(__name__)
 
-def command_mode(cmd, mem, slot, name, ls, dry_run):
-    name = utils.make_sh_file(
+def command_mode(args: argparse.Namespace):
+    cmd = args.command
+    mem = args.mem
+    slot = args.slot
+    name = args.name
+    ls = args.ls
+    array_command = args.array_cmd
+    dry_run = args.dry_run
+    name = make_sh_file(
         cmd=[cmd+"\n"], 
         mem=mem, 
         slot=slot, 
         name=name, 
+        array_command=array_command,
         ls_pattern=ls)
 
     if not dry_run:
@@ -19,8 +28,8 @@ def command_mode(cmd, mem, slot, name, ls, dry_run):
     # os.remove(name)
 
 def file_mode(path, mem, slot, name, ls, dry_run):
-    cmd = utils.read_sh(path)
-    name = utils.make_sh_file(
+    cmd = read_sh(path)
+    name = make_sh_file(
         cmd=cmd, 
         mem=mem, 
         slot=slot, 
@@ -35,7 +44,7 @@ def file_mode(path, mem, slot, name, ls, dry_run):
 def setting_mode(path, dry_run):
     import yaml
     import time
-    from qsubpy.sync_qsub import sync_qsub
+    from sync_qsub import sync_qsub
 
     time_dict = {}
     start_time = time.time()
@@ -71,16 +80,18 @@ def setting_mode(path, dry_run):
         mem = stage.get('mem', defalut_mem)
         slot = stage.get('slot', default_slot)
         ls_patten = stage.get('ls')
+        array_cmd = stage.get("array_cmd")
         logger.info(f'start stage: {name}')
         # get cmd and run qsub by sync mode to keep in order
         cmd = stage.get('cmd')
 
         if cmd is not None:
-            name = utils.make_sh_file(
+            name = make_sh_file(
                 cmd=[cmd], 
                 mem=mem, 
                 slot=slot, 
                 name=name, 
+                array_command=array_cmd,
                 ls_pattern=ls_patten, 
                 chunks=None,
                 common_variables=common_varialbes)
@@ -91,12 +102,13 @@ def setting_mode(path, dry_run):
             path = stage.get('file')
             if path is None:
                 raise RuntimeError("cmd or file is required in each stage!")
-            cmd = utils.read_sh(path)
-            name = utils.make_sh_file(cmd=cmd, 
+            cmd = read_sh(path)
+            name = make_sh_file(cmd=cmd, 
                 mem=mem, 
                 slot=slot, 
                 name=name, 
-                ls_pattern=ls_patten, 
+                ls_pattern=ls_patten,
+                array_command=array_cmd,
                 chunks=None,
                 common_variables=common_varialbes)
             

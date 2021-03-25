@@ -6,8 +6,8 @@ import os
 import logging
 logger = logging.getLogger(__name__)
 
-from qsubpy import run
-from qsubpy import generate_yaml
+import run
+import generate_yaml
 
 # set color logger
 mapping = {
@@ -38,8 +38,8 @@ def __main__():
     parser.add_argument("--slot", type=str, default="1", help='default slots')
     parser.add_argument("-n", "--name", type=str, default=None, help='job name')
     parser.add_argument("--remove", action="store_true")
-    parser.add_argument("--ls", type=str, default=None, help="pattern of ls, translate to array job. You can use file variable in command or the sh file.")
-    parser.add_argument("--array_cmd", type=str, default=None, help="command for array job")
+    parser.add_argument("--ls", type=str, default=None, help="pattern of ls, translate to array job. You can use elem variable in command or the sh file.")
+    parser.add_argument("--array_cmd", type=str, default=None, help="command for array job. You can use elem variable in command or the sh file.")
     parser.add_argument("--dry_run", action="store_true", help="Only make sh files for qsub. not run.")
     parser.add_argument("--log_level", default="info", choices=["error", "warning", "warn", "info", "debug"], help="set log level")
 
@@ -74,7 +74,7 @@ def __main__():
     logging.basicConfig(handlers=[ColorfulHandler()], level=log_level)
 
     if args.command is not None:
-        run.command_mode(args.command, args.mem, args.slot, args.name, args.ls, args.dry_run)
+        run.command_mode(args)
         sys.exit(0)
     
     if args.file is not None:
