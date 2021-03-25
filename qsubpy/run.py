@@ -59,7 +59,7 @@ def setting_mode(path, dry_run):
         dry_run = settings.get("dry_run")
 
     if dry_run:
-        logger.info(f'dry_run is True, only generated sh files...')
+        logger.critical(f'dry_run is True, only generated sh files...')
 
     if remove and (dry_run is None or not dry_run):
         logger.info(f'remove is True, when job is finished with exit code 0, remove log files and sh file')

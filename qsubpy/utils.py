@@ -88,14 +88,19 @@ def make_sh_file(cmd, mem, slot, name, ls_pattern, chunks=None, common_variables
     Returns:
         str: generated file name
     """
-    from qsubpy import templates
+    from .templates import Template
+    from .config import read_config, generate_defulat_config
+    generate_defulat_config()
+    config = read_config()
+    
+    template = Template(config)
 
     if ls_pattern is not None:
         files = ls(ls_pattern=ls_pattern)
     else:
         files=None    
         
-    script = templates.make_templates(mem, slot, files, common_variables)
+    script = template.make_templates(array_command=None, mem=mem, slot=slot, common_variables=common_variables)
 
     script += cmd
 

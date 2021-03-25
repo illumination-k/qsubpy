@@ -1,3 +1,26 @@
+from .config import Config
+
+class Template:
+    def __init__(self, config: Config):
+        self.header = []
+        self.body = []
+        self.config = config
+
+    def make_templates(self, array_command: str=None, mem: str=None, slot: str=None, common_variables=None) -> str:
+        self.header.append(self.config.header)
+        self.header.append(self.config.resource(mem, slot))
+        
+        if array_command is not None:
+            array_header, array_body = self.config.array_header_with_cmd(array_command)
+            self.header.append(array_header)
+            self.body.append(array_body)
+        self.body.append(self.config.body)
+
+        if common_variables is not None:
+            self.body.append(make_common_variables_params(common_variables))
+        
+        return self.header + self.body
+
 HEADER = [
     "#!/bin/bash",
     "#$ -S /bin/bash",
