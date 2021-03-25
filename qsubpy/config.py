@@ -2,7 +2,8 @@ import os
 import toml
 import subprocess
 
-
+import logging
+logger = logging.Logger(__name__)
 def bash_array_len(command: str) -> int:
     """array length of bash
     Args:
@@ -14,10 +15,16 @@ def bash_array_len(command: str) -> int:
     2
     """
     len_command = " ".join([f"t=($({command}))", "&&", "echo ${#t[@]}"])
+    logger.debug(f'len_command: {len_command}')
     proc = subprocess.run(
         len_command, shell=True, capture_output=True, executable="/bin/bash"
     )
-    return int(proc.stdout)
+    try:
+        ret = int(proc.stdout)
+    except:
+        logger.error(f'{len_command} results cannot to convert integer')
+        raise ValueError("Invalid literal for int()")
+    return ret
 
 
 class Config:

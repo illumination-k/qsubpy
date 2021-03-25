@@ -3,8 +3,8 @@ from qsubpy.config import Config, read_config
 
 def test_config_resource():
     config = read_config("config.toml")
-    expected_default_resource = "#$ -l s_veme=4G -l mem_req=4G\n#$ -pe def_slot 1"
-    expected_custom_resource = "#$ -l s_veme=16G -l mem_req=16G\n#$ -pe def_slot 4"
+    expected_default_resource = "#$ -l s_vmem=4G -l mem_req=4G\n#$ -pe def_slot 1"
+    expected_custom_resource = "#$ -l s_vmem=16G -l mem_req=16G\n#$ -pe def_slot 4"
     assert config.resource() == expected_default_resource
     assert config.resource("16G", "4") == expected_custom_resource
 
