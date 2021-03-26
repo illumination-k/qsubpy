@@ -95,7 +95,7 @@ set -eu
 default_mem = "4G"
 default_slot = "1"
 header = """
-#$ -l s_veme={mem} -l mem_req={mem}
+#$ -l s_vmem={mem} -l mem_req={mem}
 #$ -pe def_slot {slot}
 """
 

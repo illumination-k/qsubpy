@@ -77,3 +77,8 @@ if you use `--dry_run` flag, qsubpy generates sh files only.
 ```bash
 qsubpy -c 'echo hello' --dry_run
 ```
+
+### Config
+
+Can be configured to fit your environment.
+You can set header and body of scripts, how to set resource and array job. If you use qsubpy first, qsubpy generate config file in `${HOME}/.config/qsubpy_config.toml`. Default settings is [config.toml](./config.toml) 
