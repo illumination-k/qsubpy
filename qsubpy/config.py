@@ -100,7 +100,7 @@ header = """
 """
 
 [arrayjob]
-id = "SEG_TASK_ID"
+id = "SGE_TASK_ID"
 header = "#$ -t {start}-{end}:{step}"
 
 [options]

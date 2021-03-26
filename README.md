@@ -55,14 +55,38 @@ You can use eleme variable in the command. The below file is generated and run q
 #$ -l s_vmem=4G -l mem_req=4G
 #$ -pe def_slot 1
 #$ -t 1-8:1
-array=($(ls *.py))
-elem=${array[$(($SGE_TASK_ID-1))]}
 
 source ~/.bashrc
 source ~/.bash_profile
 set -eu
+
+array=($(ls *.py))
+elem=${array[$(($SGE_TASK_ID-1))]}
 echo $elem
 ```
+
+### Array Job
+
+```bash
+qsubpy -c "echo $elem" --array_cmd "cat test/barcodes.tsv"
+```
+
+```bash
+#!/bin/bash
+#$ -S /bin/bash
+#$ -cwd
+#$ -l s_veme=4G -l mem_req=4G
+#$ -pe def_slot 1
+#$ -t 1-10:1
+
+source ~/.bashrc
+source ~/.bash_profile
+set -eu
+array=($(cat test/barcodes.tsv))
+elem=${array[$(($SEG_TASK_ID-1))]}
+echo $elem
+```
+
 
 ### Build Workflow with settings.yml
 
