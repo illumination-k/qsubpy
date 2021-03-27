@@ -90,12 +90,15 @@ class Config:
                 cmd.append(s)
         return cmd
 
-
-def read_config(path: str = None) -> Config:
+def get_default_config_path() -> str:
     path = os.environ.get("QSUBPY_CONFIG")
     if path is None:
         home = os.environ.get("HOME")
         path = os.path.join(home, ".config", "qsubpy_config.toml")
+    return path
+
+def read_config(path: str = None) -> Config:
+    path = get_default_config_path()
     config_dict = toml.load(open(path))
 
     return Config(config_dict)
@@ -136,16 +139,10 @@ order = ["-hold_jid", "{JID}"]
 
 
 def generate_defulat_config():
-    path = os.environ.get("QSUBPY_CONFIG")
-    home = os.environ.get("HOME")
-    if path is None:
-        path = f"{home}/.config/qsubpy_config.toml"
+    path = get_default_config_path()
 
     if os.path.exists(path):
         return
-
-    if not os.path.exists(os.path.join(home, ".config")):
-        os.makedirs(os.path.join(home, "config"))
 
     with open(path, "w") as f:
         f.write(SHIROKANE_CONFIG)
