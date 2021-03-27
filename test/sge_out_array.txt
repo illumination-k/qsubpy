@@ -1,0 +1,9 @@
+requested Hard Resources
+  memory (s_vmem): 4G = A task requires 4GB of memory per slot.
+  slots (def_slot): 1 = A task requires 100% of CPU.
+  total memory: 4G = A task requires 4GB of memory.
+array job tasks
+  SGE_TASK_FIRST: 1
+  SGE_TASK_LAST: 2
+  SGE_TASK_STEPSIZE: 1
+Your job-array 33734360.1-2:1 ("stage4.sh") has been submitted

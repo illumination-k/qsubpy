@@ -128,7 +128,7 @@ sync = ["-sync", "y"]
 order = ["-hold_jid", "{JID}"]
 
 [jid]
-re = "Your job (?P<jid>\\d{8})"
+"Your (job|job-array) (?P<jid>\\d{8})"
 '''
 
 
