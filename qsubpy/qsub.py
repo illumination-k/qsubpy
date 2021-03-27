@@ -47,7 +47,7 @@ def qsub_with_jid(cmd: list, std: str="stdout") -> str:
     """run qsub and get jid
     """
 
-    p = subprocess.run(cmd, capture_output=True, executable="/bin/bash")
+    p = subprocess.run(" ".join(cmd), shell=True, capture_output=True, executable="/bin/bash")
     if std == "stdout":
         out = p.stdout
     elif std == "stderr":
