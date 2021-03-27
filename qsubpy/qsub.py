@@ -18,6 +18,9 @@ class Qsub:
         if self.test:
             logging.info(" ".join(cmd))
             return
+        else:
+            logging.debug(" ".join(cmd))
+            
         p = subprocess.Popen(cmd)
         p.wait()
         if p.returncode != 0:
@@ -31,6 +34,9 @@ class Qsub:
         if self.test:
             logging.info(" ".join(cmd))
             return
+        else:
+            logging.debug(" ".join(cmd))
+
         next_jid = qsub_with_jid(cmd)
         return next_jid
 
