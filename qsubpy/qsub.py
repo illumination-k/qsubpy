@@ -55,6 +55,7 @@ def qsub_with_jid(cmd: list, std: str="stdout") -> str:
     else:
         raise ValueError("stdout or stderr in std")
 
+    out = out.decode("utf-8")
     jid = get_jid(out)
     return jid
 
