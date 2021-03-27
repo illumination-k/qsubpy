@@ -1,8 +1,10 @@
 import os
+import yaml
 import subprocess
 import argparse
 
 from qsubpy.utils import make_sh_file, read_sh
+from qsubpy.qsub import Qsub
 
 import logging
 
@@ -39,94 +41,116 @@ def file_mode(path, mem, slot, name, ls, dry_run):
         subprocess.run(["qsub", name])
     # os.remove(name)
 
+class Settings:
+    import yaml
+    def __init__(self, path: str, dry_run: bool):
+        with open(path, "r") as f:
+            settings = yaml.safe_load(f)
+        self.stages = settings.get("stages")
+        if self.stages is None:
+            raise ValueError("Stages need")
+        self.job_name = settings.get("job_name")
+        self.defalut_mem = settings.get("default_mem")
+        self.default_slot = settings.get("default_slot")
+        self.common_varialbes = settings.get("common_variables")
+        self.remove = settings.get("remove")
+        self.mode = settings.get("mode")
+        self.test = settings.get("test") is not None
+        if self.mode is None:
+            self.mode = "sync"
+
+        if self.mode not in ["sync", "ord", "dry_run"]:
+            raise ValueError(f'invalid mode {self.mode}, plz use sync, ord or dry_run')
+
+        self.dry_run = dry_run
+        if not self.dry_run:
+            self.dry_run = settings.get("dry_run") or self.mode.lower() == "dry_run"
+
+    def start_log(self):
+        logger.debug("start qsubpy with setting mode")
+        logger.info(f"start {self.job_name} with mode {self.mode}\n")
+        logger.info(f"-------------")
+        logger.info(f"default memory: {self.defalut_mem}")
+        logger.info(f"default slots: {self.default_slot}")
+        logger.debug(common_varialbes)
+        if self.dry_run:
+            logger.critical(f"dry_run is True, only generated sh files...")
+class Stage:
+    def __init__(self, stage: dict, settings: Settings):
+        self.settings = settings
+        self.name = stage.get("name")
+        self.mem = stage.get("mem", settings.defalut_mem)
+        self.slot = stage.get("slot", settings.default_slot)
+        self.ls_patten = stage.get("ls")
+        self.array_cmd = stage.get("array_cmd")
+
+        # set command
+        self.cmd = stage.get("cmd")
+        if self.cmd is None:
+            path = stage.get("file")
+            if path is None:
+                raise RuntimeError("cmd or file is required in each stage!")
+            self.cmd = read_sh(path)
+        else:
+            self.cmd = [self.cmd]
+
+    def debug(self):
+        logger.debug(f'mem: {self.mem}, slot: {self.slot}')
+        logger.debug(f'ls_pattern: {self.ls_patten}')
+        logger.debug(f'array_cmd: {self.array_cmd}')
+        logger.debug(f'cmd: {" ".join(self.cmd)}')
+
+    def run_stage(self, hold_jid: str = None) -> str:
+        logger.info(f"start stage: {self.name}")
+        self.debug()
+        name = make_sh_file(
+            cmd=self.cmd,
+            mem=self.mem,
+            slot=self.slot,
+            name=self.name,
+            array_command=self.array_cmd,
+            ls_pattern=self.ls_patten,
+            chunks=None,
+            common_variables=self.settings.common_varialbes,
+        )
+
+        if self.settings.dry_run and not self.settings.test:
+            logger.debug("dry_run and test is false")
+            return None
+
+        next_jid = None
+        qsub = Qsub(test=self.settings.test)
+        if self.settings.mode == "sync":
+            qsub.sync(name)
+        elif self.settings.mode == "ord":
+            next_jid = qsub.ord(name, hold_jid)
+
+        logger.info(f"end {self.name}...")
+        return next_jid
+
+
 
 def setting_mode(path, dry_run):
-    import yaml
     import time
-    from qsubpy.sync_qsub import sync_qsub
 
     time_dict = {}
     start_time = time.time()
 
-    with open(path, "r") as f:
-        settings = yaml.safe_load(f)
+    settings = Settings(path, dry_run)
 
-    job_name = settings.get("job_name")
-    defalut_mem = settings.get("default_mem")
-    default_slot = settings.get("default_slot")
-    common_varialbes = settings.get("common_variables")
-    remove = settings.get("remove")
-
-    logger.debug("start qsubpy with setting mode")
-    logger.info(f"start {job_name}\n")
-    logger.info(f"-------------")
-    logger.info(f"default memory: {defalut_mem}")
-    logger.info(f"default slots: {default_slot}")
-    logger.debug(common_varialbes)
-
-    if not dry_run:
-        dry_run = settings.get("dry_run")
-
-    if dry_run:
-        logger.critical(f"dry_run is True, only generated sh files...")
-
-    if remove and (dry_run is None or not dry_run):
-        logger.info(
-            f"remove is True, when job is finished with exit code 0, remove log files and sh file"
-        )
-
-    for stage in settings["stages"]:
+    hold_jid = None
+    for _stage in settings.stages:
         stage_start = time.time()
         # get params
-        name = stage.get("name")
-        mem = stage.get("mem", defalut_mem)
-        slot = stage.get("slot", default_slot)
-        ls_patten = stage.get("ls")
-        array_cmd = stage.get("array_cmd")
-        logger.info(f"start stage: {name}")
-        # get cmd and run qsub by sync mode to keep in order
-        cmd = stage.get("cmd")
+        
+        stage = Stage(_stage, settings)
 
-        if cmd is not None:
-            name = make_sh_file(
-                cmd=[cmd],
-                mem=mem,
-                slot=slot,
-                name=name,
-                array_command=array_cmd,
-                ls_pattern=ls_patten,
-                chunks=None,
-                common_variables=common_varialbes,
-            )
-
-            if dry_run is None or not dry_run:
-                sync_qsub(name)
-        else:
-            path = stage.get("file")
-            if path is None:
-                raise RuntimeError("cmd or file is required in each stage!")
-            cmd = read_sh(path)
-            name = make_sh_file(
-                cmd=cmd,
-                mem=mem,
-                slot=slot,
-                name=name,
-                ls_pattern=ls_patten,
-                array_command=array_cmd,
-                chunks=None,
-                common_variables=common_varialbes,
-            )
-
-            if dry_run is None or not dry_run:
-                sync_qsub(name)
-
-        if remove and (dry_run is None or not dry_run):
-            os.remove(name)
+        # update hold jid if mode is ord
+        hold_jid = stage.run_stage(hold_jid)
 
         stage_end = time.time()
-        key = name + "_proceeded_time"
+        key = stage.name + "_proceeded_time"
         time_dict[key] = stage_end - stage_start
-        logger.info(f"end {stage}...")
         logger.info(f"proceeded time is {time_dict[key]}")
 
     end_time = time.time()

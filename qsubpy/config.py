@@ -1,4 +1,5 @@
 import os
+import re
 import toml
 import subprocess
 
@@ -31,16 +32,26 @@ class Config:
     def __init__(self, config: dict):
         self.header: str = config["scripts"]["header"].rstrip("\n")
         self.body: str = config["scripts"]["body"].rstrip("\n")
+
+        # Reource
         self.resource_params: str = config["resource"]["header"].rstrip("\n")
         self.default_mem = config["resource"]["default_mem"]
         self.default_slot = config["resource"]["default_slot"]
+        
+        # array job
         self.array_job_id: str = None
         if config["arrayjob"]["id"].startswith("$"):
             self.array_job_id = config["arrayjob"]["id"]
         else:
             self.array_job_id = "$" + config["arrayjob"]["id"]
         self.array_params: str = config["arrayjob"]["header"].rstrip("\n")
-        self.sync_options: str = config["options"]["sync"]
+        
+        # qsub option
+        self.sync_options: 'list[str]' = config["options"]["sync"]
+        self.ord_options: 'list[str]' = config["options"]["order"]
+        
+        # jid re
+        self.jid_re = re.compile(config["jid"]["re"])
 
     def resource(self, mem: str = None, slot: str = None) -> str:
         if mem is None:
@@ -66,6 +77,15 @@ class Config:
 
     def sync_qsub_command(self) -> list:
         return ["qsub"] + self.sync_options
+
+    def ord_qsub_command(self, jid: str) -> list:
+        cmd = ["qsub"]
+        for s in self.ord_options:
+            if s == "{JID}":
+                cmd.append(jid)
+            else:
+                cmd.append(s)
+        return cmd
 
 
 def read_config(path: str = None) -> Config:
@@ -105,6 +125,10 @@ header = "#$ -t {start}-{end}:{step}"
 
 [options]
 sync = ["-sync", "y"]
+order = ["-hold_jid", "{JID}"]
+
+[jid]
+re = "Your job (?P<jid>\\d{8})"
 '''
 
 

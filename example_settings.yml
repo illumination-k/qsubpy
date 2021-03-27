@@ -3,6 +3,8 @@ job_name: "example"
 default_mem: 4G
 default_slot: 1
 
+test: true
+mode: ord
 common_variables:
   fasta: "/path/to/fasta"
 
