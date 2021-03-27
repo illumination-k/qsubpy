@@ -41,8 +41,10 @@ def file_mode(path, mem, slot, name, ls, dry_run):
         subprocess.run(["qsub", name])
     # os.remove(name)
 
+
 class Settings:
     import yaml
+
     def __init__(self, path: str, dry_run: bool):
         with open(path, "r") as f:
             settings = yaml.safe_load(f)
@@ -60,7 +62,7 @@ class Settings:
             self.mode = "sync"
 
         if self.mode not in ["sync", "ord", "dry_run"]:
-            raise ValueError(f'invalid mode {self.mode}, plz use sync, ord or dry_run')
+            raise ValueError(f"invalid mode {self.mode}, plz use sync, ord or dry_run")
 
         self.dry_run = dry_run
         if not self.dry_run:
@@ -75,6 +77,8 @@ class Settings:
         logger.debug(common_varialbes)
         if self.dry_run:
             logger.critical(f"dry_run is True, only generated sh files...")
+
+
 class Stage:
     def __init__(self, stage: dict, settings: Settings):
         self.settings = settings
@@ -95,9 +99,9 @@ class Stage:
             self.cmd = [self.cmd]
 
     def debug(self):
-        logger.debug(f'mem: {self.mem}, slot: {self.slot}')
-        logger.debug(f'ls_pattern: {self.ls_patten}')
-        logger.debug(f'array_cmd: {self.array_cmd}')
+        logger.debug(f"mem: {self.mem}, slot: {self.slot}")
+        logger.debug(f"ls_pattern: {self.ls_patten}")
+        logger.debug(f"array_cmd: {self.array_cmd}")
         logger.debug(f'cmd: {" ".join(self.cmd)}')
 
     def run_stage(self, hold_jid: str = None) -> str:
@@ -129,7 +133,6 @@ class Stage:
         return next_jid
 
 
-
 def setting_mode(path, dry_run):
     import time
 
@@ -142,7 +145,7 @@ def setting_mode(path, dry_run):
     for _stage in settings.stages:
         stage_start = time.time()
         # get params
-        
+
         stage = Stage(_stage, settings)
 
         # update hold jid if mode is ord

@@ -35,8 +35,8 @@ def make_sh_file(
     mem: str,
     slot: str,
     name: str,
-    ls_pattern: str=None,
-    array_command: str=None,
+    ls_pattern: str = None,
+    array_command: str = None,
     chunks=None,
     common_variables=None,
 ) -> str:

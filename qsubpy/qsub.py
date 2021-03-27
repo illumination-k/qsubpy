@@ -7,6 +7,7 @@ logger = logging.Logger(__name__)
 
 CONFIG = read_config()
 
+
 class Qsub:
     def __init__(self, test: bool = False):
         self.config = read_config()
@@ -20,7 +21,7 @@ class Qsub:
             return
         else:
             logging.debug(" ".join(cmd))
-            
+
         p = subprocess.Popen(cmd)
         p.wait()
         if p.returncode != 0:
@@ -42,18 +43,20 @@ class Qsub:
 
 
 def get_jid(out: str) -> str:
-    """get jid from output
-    """
+    """get jid from output"""
     import re
+
     r = CONFIG.jid_re
     jid = re.search(r, out).group("jid")
     return jid
 
-def qsub_with_jid(cmd: list, std: str="stdout") -> str:
-    """run qsub and get jid
-    """
 
-    p = subprocess.run(" ".join(cmd), shell=True, capture_output=True, executable="/bin/bash")
+def qsub_with_jid(cmd: list, std: str = "stdout") -> str:
+    """run qsub and get jid"""
+
+    p = subprocess.run(
+        " ".join(cmd), shell=True, capture_output=True, executable="/bin/bash"
+    )
     if std == "stdout":
         out = p.stdout
     elif std == "stderr":
@@ -64,6 +67,3 @@ def qsub_with_jid(cmd: list, std: str="stdout") -> str:
     out = out.decode("utf-8")
     jid = get_jid(out)
     return jid
-
-
-
