@@ -47,7 +47,11 @@ def get_jid(out: str) -> str:
     import re
 
     r = CONFIG.jid_re
-    jid = re.search(r, out).group("jid")
+    try:
+        jid = re.search(r, out).group("jid")
+    except:
+        logger.error(f'cannot extract jid from {out}')
+        raise ValueError()
     return jid
 
 

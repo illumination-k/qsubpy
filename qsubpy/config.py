@@ -84,8 +84,8 @@ class Config:
     def ord_qsub_command(self, jid: str) -> list:
         cmd = ["qsub"]
         for s in self.ord_options:
-            if s == "{JID}":
-                cmd.append(jid)
+            if "{JID}" in s:
+                cmd.append(s.replace("{JID}", jid))
             else:
                 cmd.append(s)
         return cmd
