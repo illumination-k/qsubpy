@@ -8,7 +8,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 from qsubpy import run
-from qsubpy import generate_yaml
 
 # set color logger
 mapping = {
@@ -73,21 +72,7 @@ def __main__():
     # subparsers
     subparsers = parser.add_subparsers()
 
-    # to generate setting file easily
-    ## args
-    generate_yaml_parser = subparsers.add_parser(
-        "generate_settings", help="generate settings file"
-    )
-    generate_yaml_parser.add_argument("-o", "--output", type=str, required=True)
-    generate_yaml_parser.add_argument("--stage_num", type=int, default=3)
-    generate_yaml_parser.add_argument(
-        "--mem", type=str, default="4G", help="set default mem"
-    )
-    generate_yaml_parser.add_argument(
-        "--slot", type=str, default="1", help="set default slot"
-    )
-    ## set handler
-    generate_yaml_parser.set_defaults(handler=generate_yaml.parse_args)
+    # cmd, file and settings by subparsers
 
     args = parser.parse_args()
 

@@ -8,29 +8,13 @@ import logging
 logger = logging.Logger(__name__)
 
 
-def bash_array_len(command: str) -> int:
-    """array length of bash
-    Args:
-        command (str): command
-    Returns:
-        int: length of array in bash
+def no_exist_msg(s: str) -> str:
+    """return no exist s in config"""
 
-    >>> bash_array_len("echo 'a b'")
-    2
-    """
-    len_command = " ".join([f"t=($({command}))", "&&", "echo ${#t[@]}"])
-    logger.debug(f"len_command: {len_command}")
-    proc = subprocess.run(
-        len_command, shell=True, capture_output=True, executable="/bin/bash"
-    )
-    try:
-        ret = int(proc.stdout)
-    except:
-        logger.error(f"{len_command} results cannot to convert integer")
-        raise ValueError("Invalid literal for int()")
-    return ret
+    return f"{s} do not exist in qsubpy_config.toml"
 
 
+#!TODO: add log path
 class Config:
     def __init__(self, config: dict):
         self.header: str = config["scripts"]["header"].rstrip("\n")
@@ -50,11 +34,29 @@ class Config:
         self.array_params: str = config["arrayjob"]["header"].rstrip("\n")
 
         # qsub option
-        self.sync_options: "list[str]" = config["options"]["sync"]
-        self.ord_options: "list[str]" = config["options"]["order"]
+        options = config.get("options")
+        if options is None:
+            logger.warn(no_exist_msg("Options"))
+            self.sync_options = None
+            self.ord_options = None
+        else:
+            self.sync_options: "list[str]" = options.get("sync")
+            self.ord_options: "list[str]" = options.get("order")
 
         # jid re
-        self.jid_re = re.compile(config["jid"]["re"])
+        jid = config.get("jid")
+        if jid is None:
+            logger.warn(no_exist_msg("jid"))
+            self.jid_re = None
+        else:
+            self.jid_re: re.Pattern = re.compile(config["jid"].get("re"))
+
+        # common variables
+        common_variables = config.get("common_variables")
+        if common_variables is None:
+            self.common_variables = {}
+        else:
+            self.common_variables = common_variables
 
     def resource(self, mem: str = None, slot: str = None) -> str:
         if mem is None:
@@ -66,7 +68,7 @@ class Config:
         )
 
     def array_header_with_cmd(self, command: str) -> tuple:
-        length = bash_array_len(command)
+        length = self.bash_array_len(command)
         array_header = (
             self.array_params.replace("{start}", "1")
             .replace("{end}", str(length))
@@ -74,7 +76,7 @@ class Config:
         )
         array = f"array=($({command}))"
         # like following
-        # elem=${array[$(($SEG_TASK_ID-1))]}
+        # elem=${array[$(($SGE_TASK_ID-1))]}
         elem = "elem=${array[$((" + self.array_job_id + "-1))]}"
         return array_header, "\n".join([array, elem])
 
@@ -84,11 +86,65 @@ class Config:
     def ord_qsub_command(self, jid: str) -> list:
         cmd = ["qsub"]
         for s in self.ord_options:
-            if s == "{JID}":
-                cmd.append(jid)
+            if "{JID}" in s:
+                cmd.append(s.replace("{JID}", jid))
             else:
                 cmd.append(s)
         return cmd
+
+    def make_common_variables_list(self):
+        if self.common_variables == {}:
+            return []
+
+        ret = []
+        for k, v in self.common_variables.items():
+            ret.append(k + "=" + str(v))
+        return ret
+
+    def common_variables_1linear(self) -> str:
+        l = self.make_common_variables_list()
+        if len(l) == 0:
+            return ""
+
+        ret_command = ""
+        ret_command = " && ".join(l)
+        ret_command += " && "
+        return ret_command
+
+    def make_common_variables_params(self):
+        return "\n".join(self.make_common_variables_list())
+
+    def bash_array_len(self, command: str) -> int:
+        """array length of bash
+        Args:
+            command (str): command
+        Returns:
+            int: length of array in bash
+
+        >>> bash_array_len("echo 'a b'")
+        2
+        """
+        len_command = self.common_variables_1linear()
+
+        len_command += " ".join([f"t=($({command}))", "&&", "echo ${#t[@]}"])
+
+        logger.debug(f"len_command: {len_command}")
+        proc = subprocess.run(
+            len_command, shell=True, capture_output=True, executable="/bin/bash"
+        )
+        try:
+            ret = int(proc.stdout)
+        except:
+            logger.error(f"{len_command} results cannot to convert integer")
+            raise ValueError(
+                "Invalid literal for int(). Please check your array command!"
+            )
+        return ret
+
+    def __str__(self):
+        ret = ["-" * 20]
+        ret.append("config_path: " + get_default_config_path())
+
 
 def get_default_config_path() -> str:
     path = os.environ.get("QSUBPY_CONFIG")
@@ -96,6 +152,7 @@ def get_default_config_path() -> str:
         home = os.environ.get("HOME")
         path = os.path.join(home, ".config", "qsubpy_config.toml")
     return path
+
 
 def read_config(path: str = None) -> Config:
     path = get_default_config_path()
