@@ -157,7 +157,8 @@ def setting_mode(path, dry_run):
         logger.info(f"proceeded time is {time_dict[key]}")
 
     end_time = time.time()
-    time_dict["job_proceeded_time"] = end_time - start_time
-    with open("time.log", "w") as f:
-        for k, v in time_dict.items():
-            f.write(k + ":" + str(v) + "\n")
+    if settings.mode == "sync":
+        time_dict["job_proceeded_time"] = end_time - start_time
+        with open("time.log", "w") as f:
+            for k, v in time_dict.items():
+                f.write(k + ":" + str(v) + "\n")

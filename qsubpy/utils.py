@@ -1,3 +1,4 @@
+import argparse
 import logging
 
 logger = logging.getLogger(__name__)
@@ -58,6 +59,8 @@ def make_sh_file(
 
     generate_defulat_config()
     config = read_config()
+    if common_variables is not None:
+        config.common_variables.update(common_variables)
 
     template = Template(config)
 
