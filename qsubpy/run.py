@@ -35,11 +35,17 @@ def command_mode(args: argparse.Namespace):
     # os.remove(name)
 
 
-def file_mode(path, mem, slot, name, ls, dry_run):
+def file_mode(args: argparse.Namespace):
+    # path, mem, slot, name, ls, dry_run
+    path = args.file
+    mem = args.mem
+    slot = args.slot
+    name = args.name
+    ls = args.ls
     cmd = read_sh(path)
     name = make_sh_file(cmd=cmd, mem=mem, slot=slot, name=name, ls_pattern=ls)
 
-    if not dry_run:
+    if not args.dry_run:
         subprocess.run(["qsub", name])
     # os.remove(name)
 
@@ -134,8 +140,11 @@ class Stage:
         return next_jid
 
 
-def setting_mode(path, dry_run):
+def workflow_mode(args: argparse.Namespace):
     import time
+
+    path: str = args.workflow
+    dry_run: bool = args.dry_run
 
     time_dict = {}
     start_time = time.time()

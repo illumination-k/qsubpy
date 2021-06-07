@@ -1,13 +1,12 @@
 import argparse
-import subprocess
 import sys
-import os
 
 import logging
 
 logger = logging.getLogger(__name__)
 
 from qsubpy import run
+from qsubpy.utils import add_default_args
 
 # set color logger
 mapping = {
@@ -27,50 +26,37 @@ class ColorfulHandler(logging.StreamHandler):
         record.levelname = mapping[record.levelname]
         super().emit(record)
 
+def command_mode_handler(args: argparse.Namespace):
+    run.command_mode(args)
+
+def file_mode_handler(args: argparse.Namespace):
+    run.file_mode(args)
+
+def workflow_mode_handler(args: argparse.Namespace):
+    run.workflow_mode(args)
 
 def __main__():
     parser = argparse.ArgumentParser(
-        description="wrapper for qsub of UGE. easy to use array job and build workflow."
-    )
-
-    # main parsers
-    parser.add_argument(
-        "-c", "--command", type=str, default=None, help="run qusbpy with command mode"
-    )
-    parser.add_argument(
-        "-f", "--file", type=str, default=None, help="run qsubpy with file mode"
-    )
-    parser.add_argument(
-        "-s", "--setting", type=str, default=None, help="run qsubpy with settings mode"
-    )
-    parser.add_argument("--mem", type=str, default="4G", help="default memory")
-    parser.add_argument("--slot", type=str, default="1", help="default slots")
-    parser.add_argument("-n", "--name", type=str, default=None, help="job name")
-    parser.add_argument("--remove", action="store_true")
-    parser.add_argument(
-        "--ls",
-        type=str,
-        default=None,
-        help="pattern of ls, translate to array job. You can use elem variable in command or the sh file.",
-    )
-    parser.add_argument(
-        "--array_cmd",
-        type=str,
-        default=None,
-        help="command for array job. You can use elem variable in command or the sh file.",
-    )
-    parser.add_argument(
-        "--dry_run", action="store_true", help="Only make sh files for qsub. not run."
-    )
-    parser.add_argument(
-        "--log_level",
-        default="info",
-        choices=["error", "warning", "warn", "info", "debug"],
-        help="set log level",
+        description="wrapper for qsub. Easy to use array job and build workflow."
     )
 
     # subparsers
     subparsers = parser.add_subparsers()
+
+    # cmd
+    cmd_parser = subparsers.add_parser("command", aliases=["cmd", "c"], help="run qusbpy with command mode")
+    cmd_parser.add_argument("command", metavar="Command", type=str, help="command you would like to run with qsub")
+    add_default_args(cmd_parser, handler=command_mode_handler)
+
+    # file
+    file_parser = subparsers.add_parser("file", aliases=["f"], help="run qsubpy with file mode")
+    file_parser.add_argument("file", metavar="Script File Path", type=str, help="File you would like to run with qsub")
+    add_default_args(file_parser, handler=file_mode_handler)
+
+    # workflow
+    workflow_parser = subparsers.add_parser("workflow", aliases=["w", "setting", "settings", "s"], help="run qsubpy with workflow (setting) mode")
+    workflow_parser.add_argument("workflow", metavar="Workflow Yaml Path", type=str, help="Workflow yaml you would like to run with qsub")
+    add_default_args(workflow_parser, handler=workflow_mode_handler)
 
     # cmd, file and settings by subparsers
 
@@ -91,27 +77,12 @@ def __main__():
     # set logger
     logging.basicConfig(handlers=[ColorfulHandler()], level=log_level)
 
-    if args.command is not None:
-        run.command_mode(args)
-        sys.exit(0)
-
-    if args.file is not None:
-        if not os.path.exists(args.file):
-            raise IOError(f"{args.file} does not exists!")
-        run.file_mode(args.file, args.mem, args.slot, args.name, args.ls, args.dry_run)
-        sys.exit(0)
-
-    if args.setting is not None:
-        run.setting_mode(args.setting, args.dry_run)
-        sys.exit(0)
-
     # run handler
     if hasattr(args, "handler"):
         args.handler(args)
-
-    logger.error("--command, --settings or --file is need")
-    parser.print_help()
-    sys.exit(1)
+    else:
+        parser.print_help()
+        sys.exit(1)
 
 
 if __name__ == "__main__":

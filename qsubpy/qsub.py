@@ -1,6 +1,7 @@
 import subprocess
 from qsubpy.config import read_config
 
+from typing import List
 import logging
 
 logger = logging.Logger(__name__)
@@ -51,7 +52,7 @@ def get_jid(out: str) -> str:
         raise ValueError("not specify jid re in config")
     else:
         r = _r
-        
+
     try:
         jid = re.search(r, out).group("jid")
         logger.debug(f'jid: {jid}')
@@ -61,7 +62,7 @@ def get_jid(out: str) -> str:
     return jid
 
 
-def qsub_with_jid(cmd: list, std: str = "stdout") -> str:
+def qsub_with_jid(cmd: List[str], std: str = "stdout") -> str:
     """run qsub and get jid"""
 
     p = subprocess.run(
