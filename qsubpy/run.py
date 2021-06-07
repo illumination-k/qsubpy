@@ -3,6 +3,8 @@ import yaml
 import subprocess
 import argparse
 
+from typing import Optional
+
 from qsubpy.utils import make_sh_file, read_sh
 from qsubpy.qsub import Qsub
 
@@ -74,7 +76,7 @@ class Settings:
         logger.info(f"-------------")
         logger.info(f"default memory: {self.defalut_mem}")
         logger.info(f"default slots: {self.default_slot}")
-        logger.debug(common_varialbes)
+        logger.debug(self.common_varialbes)
         if self.dry_run:
             logger.critical(f"dry_run is True, only generated sh files...")
 
@@ -89,22 +91,21 @@ class Stage:
         self.array_cmd = stage.get("array_cmd")
 
         # set command
-        self.cmd = stage.get("cmd")
-        if self.cmd is None:
+        cmd = stage.get("cmd")
+        if cmd is None:
             path = stage.get("file")
             if path is None:
                 raise RuntimeError("cmd or file is required in each stage!")
             self.cmd = read_sh(path)
         else:
-            self.cmd = [self.cmd]
-
+            self.cmd = [cmd]
     def debug(self):
         logger.debug(f"mem: {self.mem}, slot: {self.slot}")
         logger.debug(f"ls_pattern: {self.ls_patten}")
         logger.debug(f"array_cmd: {self.array_cmd}")
         logger.debug(f'cmd: {" ".join(self.cmd)}')
 
-    def run_stage(self, hold_jid: str = None) -> str:
+    def run_stage(self, hold_jid: str = None) -> Optional[str]:
         logger.info(f"start stage: {self.name}")
         self.debug()
         name = make_sh_file(

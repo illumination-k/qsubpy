@@ -46,7 +46,12 @@ def get_jid(out: str) -> str:
     """get jid from output"""
     import re
 
-    r = CONFIG.jid_re
+    _r = CONFIG.jid_re
+    if _r is None:
+        raise ValueError("not specify jid re in config")
+    else:
+        r = _r
+        
     try:
         jid = re.search(r, out).group("jid")
         logger.debug(f'jid: {jid}')

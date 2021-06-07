@@ -1,5 +1,5 @@
-import argparse
 import logging
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +35,7 @@ def make_sh_file(
     cmd: list,
     mem: str,
     slot: str,
-    name: str,
+    name: Optional[str],
     ls_pattern: str = None,
     array_command: str = None,
     chunks=None,

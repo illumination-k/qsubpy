@@ -3,6 +3,8 @@ import re
 import toml
 import subprocess
 
+from typing import Optional, List
+
 import logging
 
 logger = logging.Logger(__name__)
@@ -26,7 +28,7 @@ class Config:
         self.default_slot = config["resource"]["default_slot"]
 
         # array job
-        self.array_job_id: str = None
+        self.array_job_id: Optional[str] = None
         if config["arrayjob"]["id"].startswith("$"):
             self.array_job_id = config["arrayjob"]["id"]
         else:
@@ -40,8 +42,8 @@ class Config:
             self.sync_options = None
             self.ord_options = None
         else:
-            self.sync_options: "list[str]" = options.get("sync")
-            self.ord_options: "list[str]" = options.get("order")
+            self.sync_options: Optional[List[str]] = options.get("sync")
+            self.ord_options: Optional[List[str]] = options.get("order")
 
         # jid re
         jid = config.get("jid")
@@ -49,7 +51,7 @@ class Config:
             logger.warn(no_exist_msg("jid"))
             self.jid_re = None
         else:
-            self.jid_re: re.Pattern = re.compile(config["jid"].get("re"))
+            self.jid_re: Optional[re.Pattern] = re.compile(config["jid"].get("re"))
 
         # common variables
         common_variables = config.get("common_variables")
@@ -149,7 +151,7 @@ class Config:
 def get_default_config_path() -> str:
     path = os.environ.get("QSUBPY_CONFIG")
     if path is None:
-        home = os.environ.get("HOME")
+        home = os.environ["HOME"]
         path = os.path.join(home, ".config", "qsubpy_config.toml")
     return path
 

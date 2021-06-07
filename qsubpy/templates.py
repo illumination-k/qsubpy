@@ -1,5 +1,5 @@
 from qsubpy.config import Config
-
+from typing import Optional, List
 
 class Template:
     def __init__(self, config: Config):
@@ -7,7 +7,7 @@ class Template:
         self.body = [""]
         self.config = config
 
-    def _make_header(self, mem: str, slot: str):
+    def _make_header(self, mem: Optional[str], slot: Optional[str]):
         self.header.append(self.config.header)
         self.header.append(self.config.resource(mem, slot))
 
@@ -20,7 +20,7 @@ class Template:
         mem: str = None,
         slot: str = None,
         common_variables=None,
-    ) -> str:
+    ) -> List[str]:
         self._make_header(mem, slot)
         self._make_body()
 
