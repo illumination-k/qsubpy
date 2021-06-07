@@ -28,7 +28,8 @@ stages:
     array_cmd: echo 'a b'
 
   - name: stage5
-    run: echo "run"
+    run: echo $elem
     array_cmd: echo $seq
+    runs-on: "salmon"
 
     

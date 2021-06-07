@@ -1,5 +1,5 @@
 import logging
-from typing import Optional
+from typing import List, Optional
 from argparse import ArgumentParser
 
 
@@ -122,3 +122,21 @@ def make_sh_file(
         f.write("\n".join(script))
 
     return name
+
+def make_singularity_command(
+    command: List[str],
+    singularity_img: str,
+    bind_dirs: Optional[List[str]] = None
+    ) -> str:
+    """make singularity command from the raw command
+    singularity exec -B binddir1 -B binddir2 singularity_img cmd
+    """
+
+    ret = ["singularity", "exec"]
+    
+    if bind_dirs is not None:
+        for bind_dir in bind_dirs:
+            ret += ["-B", bind_dir]
+
+    ret += [singularity_img] + command
+    return " ".join(ret)

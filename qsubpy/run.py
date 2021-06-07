@@ -3,8 +3,9 @@ import subprocess
 import argparse
 
 from typing import Dict, List, Optional
+from config import read_config
 
-from qsubpy.utils import make_sh_file, read_sh
+from qsubpy.utils import make_sh_file, read_sh, make_singularity_command
 from qsubpy.qsub import Qsub
 
 import logging
@@ -94,6 +95,7 @@ class Stage:
         self.slot = stage.get("slot", settings.default_slot)
         self.ls_patten = stage.get("ls")
         self.array_cmd = stage.get("array_cmd")
+        self.runs_on = stage.get("runs-on")
 
         # set command
         cmd = stage.get("cmd")
@@ -108,6 +110,17 @@ class Stage:
                 self.cmd = [cmd]
         else:
             self.cmd = [cmd]
+
+        if self.runs_on is not None and stage.get("file") is None:
+            config = read_config()
+            self.cmd = [make_singularity_command(
+                command = self.cmd,
+                singularity_img = config.singularity_config.singularity_image(image=self.runs_on, root=None),
+                bind_dirs=None
+            )]
+        elif self.runs_on is not None and stage.get("file") is not None:
+            raise ValueError("file and runs_on cannot use together")
+
     def debug(self):
         logger.debug(f"mem: {self.mem}, slot: {self.slot}")
         logger.debug(f"ls_pattern: {self.ls_patten}")
