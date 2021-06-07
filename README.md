@@ -33,7 +33,7 @@ scripts.body
 ### Basic qsubpy
 
 ```bash
-qsubpy -c 'echo hello' --mem 4G --slot 1
+qsubpy command 'echo hello' --mem 4G --slot 1
 ```
 
 The below file is generated and run qsub
@@ -83,7 +83,7 @@ echo $elem
 ### Array Job
 
 ```bash
-qsubpy -c "echo $elem" --array_cmd "cat test/barcodes.tsv"
+qsubpy command 'echo $elem' --array_cmd "cat test/barcodes.tsv"
 ```
 
 ```bash
@@ -114,7 +114,7 @@ You can choose mode from ord, sync or dry_run. If you choose dry_run mode, qsubp
 qsubpy automatically get job id and run qsub with options such as `-hold-jid xxxxx` according to the order of settigns.yml.
 
 ```bash
-qsubpy -s settings.yml
+qsubpy workflow settings.yml
 ```
 
 qsubpy get jid by regex in config from qsub stdout.
@@ -124,7 +124,7 @@ qsubpy get jid by regex in config from qsub stdout.
 qsubpy run qsub with otpions such as `-sync -y`. Qsubpy run the stage and wait finishing job and run next stage.
 
 ```bash
-nohup qsubpy -s settings.yml &
+nohup qsubpy workflow settings.yml &
 ```
 
 ### Dry Run
@@ -132,6 +132,6 @@ nohup qsubpy -s settings.yml &
 if you use `--dry_run` flag, qsubpy generates sh files only. This flag overwrite mode information.
 
 ```bash
-qsubpy -c 'echo hello' --dry_run
-qsubpy -s settings.yml --dry_run
+qsubpy command 'echo hello' --dry_run
+qsubpy workflow settings.yml --dry_run
 ```
