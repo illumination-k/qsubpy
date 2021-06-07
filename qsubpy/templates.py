@@ -4,7 +4,7 @@ from typing import Optional, List
 class Template:
     def __init__(self, config: Config):
         self.header = []
-        self.body = [""]
+        self.body = []
         self.config = config
 
     def _make_header(self, mem: Optional[str], slot: Optional[str]):

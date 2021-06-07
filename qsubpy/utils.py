@@ -10,7 +10,7 @@ def add_default_args(parser: ArgumentParser, handler) -> ArgumentParser:
     parser.add_argument("--mem", type=str, default="4G", help="default memory")
     parser.add_argument("--slot", type=str, default="1", help="default slots")
     parser.add_argument("-n", "--name", type=str, default=None, help="job name")
-    parser.add_argument("--remove", action="store_true")
+
     parser.add_argument(
         "--ls",
         type=str,

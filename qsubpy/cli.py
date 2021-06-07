@@ -56,13 +56,13 @@ def __main__():
     # workflow
     workflow_parser = subparsers.add_parser("workflow", aliases=["w", "setting", "settings", "s"], help="run qsubpy with workflow (setting) mode")
     workflow_parser.add_argument("workflow", metavar="Workflow Yaml Path", type=str, help="Workflow yaml you would like to run with qsub")
-    workflow_parser.add_argument("--common_variables", type=str, nargs="*")
+    workflow_parser.add_argument("-cv", "--common_variables", type=str, nargs="*", default=[])
     add_default_args(workflow_parser, handler=workflow_mode_handler)
     
     # cmd, file and settings by subparsers
 
     args = parser.parse_args()
-    print(args)
+    logger.debug(args)
 
 
     # set log level
