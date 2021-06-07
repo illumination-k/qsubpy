@@ -1,9 +1,8 @@
-import os
 import yaml
 import subprocess
 import argparse
 
-from typing import Optional
+from typing import Dict, List, Optional
 
 from qsubpy.utils import make_sh_file, read_sh
 from qsubpy.qsub import Qsub
@@ -47,12 +46,8 @@ def file_mode(args: argparse.Namespace):
 
     if not args.dry_run:
         subprocess.run(["qsub", name])
-    # os.remove(name)
-
 
 class Settings:
-    import yaml
-
     def __init__(self, path: str, dry_run: bool):
         with open(path, "r") as f:
             settings = yaml.safe_load(f)
@@ -76,15 +71,19 @@ class Settings:
         if not self.dry_run:
             self.dry_run = settings.get("dry_run") or self.mode.lower() == "dry_run"
 
+        if self.dry_run:
+            self.mode = "dry_run"
+
     def start_log(self):
         logger.debug("start qsubpy with setting mode")
-        logger.info(f"start {self.job_name} with mode {self.mode}\n")
+        logger.info(f"start {self.job_name} with mode {self.mode}")
         logger.info(f"-------------")
         logger.info(f"default memory: {self.defalut_mem}")
         logger.info(f"default slots: {self.default_slot}")
         logger.debug(self.common_varialbes)
         if self.dry_run:
             logger.critical(f"dry_run is True, only generated sh files...")
+        logger.info(f"-------------\n")
 
 
 class Stage:
@@ -99,10 +98,14 @@ class Stage:
         # set command
         cmd = stage.get("cmd")
         if cmd is None:
-            path = stage.get("file")
-            if path is None:
-                raise RuntimeError("cmd or file is required in each stage!")
-            self.cmd = read_sh(path)
+            cmd = stage.get("run")
+            if cmd is None:
+                path = stage.get("file")
+                if path is None:
+                    raise RuntimeError("run (cmd) or file is required in each stage!")
+                self.cmd = read_sh(path)
+            else:
+                self.cmd = [cmd]
         else:
             self.cmd = [cmd]
     def debug(self):
@@ -112,7 +115,9 @@ class Stage:
         logger.debug(f'cmd: {" ".join(self.cmd)}')
 
     def run_stage(self, hold_jid: str = None) -> Optional[str]:
-        logger.info(f"start stage: {self.name}")
+        if self.settings.mode == "sync":
+            logger.info(f"start stage: {self.name}")
+
         self.debug()
         name = make_sh_file(
             cmd=self.cmd,
@@ -136,9 +141,17 @@ class Stage:
         elif self.settings.mode == "ord":
             next_jid = qsub.ord(name, hold_jid)
 
-        logger.info(f"end {self.name}...")
+        if self.settings.mode == "sync":
+            logger.info(f"end {self.name}...")
         return next_jid
 
+
+def parse_common_variables(common_variables_str: List[str]) -> Dict[str, str]:
+    d = {}
+    for l in common_variables_str:
+        k, v = l.rstrip("\n").split("=")
+        d.setdefault(k, v)
+    return d
 
 def workflow_mode(args: argparse.Namespace):
     import time
@@ -150,6 +163,8 @@ def workflow_mode(args: argparse.Namespace):
     start_time = time.time()
 
     settings = Settings(path, dry_run)
+    settings.common_varialbes.update(parse_common_variables(args.common_variables))
+    settings.start_log()
 
     hold_jid = None
     for _stage in settings.stages:
@@ -162,9 +177,11 @@ def workflow_mode(args: argparse.Namespace):
         hold_jid = stage.run_stage(hold_jid)
 
         stage_end = time.time()
-        key = stage.name + "_proceeded_time"
-        time_dict[key] = stage_end - stage_start
-        logger.info(f"proceeded time is {time_dict[key]}")
+
+        if settings.mode == "sync":
+            key = stage.name + "_proceeded_time"
+            time_dict[key] = stage_end - stage_start
+            logger.info(f"proceeded time is {time_dict[key]}")
 
     end_time = time.time()
     if settings.mode == "sync":
@@ -172,3 +189,5 @@ def workflow_mode(args: argparse.Namespace):
         with open("time.log", "w") as f:
             for k, v in time_dict.items():
                 f.write(k + ":" + str(v) + "\n")
+
+    logger.info("done!")

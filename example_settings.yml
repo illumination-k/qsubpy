@@ -6,6 +6,7 @@ default_slot: 1
 mode: ord
 common_variables:
   fasta: "/path/to/fasta"
+  seq: "'1 2'"
 
 stages:
   - name: stage1
@@ -25,5 +26,9 @@ stages:
   - name: stage4
     cmd: echo $elem
     array_cmd: echo 'a b'
+
+  - name: stage5
+    run: echo "run"
+    array_cmd: echo $seq
 
     

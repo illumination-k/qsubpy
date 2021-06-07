@@ -16,16 +16,14 @@ class Template:
 
     def make_templates(
         self,
-        array_command: str = None,
-        mem: str = None,
-        slot: str = None,
-        common_variables=None,
+        array_command: Optional[str] = None,
+        mem: Optional[str] = None,
+        slot: Optional[str] = None,
     ) -> List[str]:
         self._make_header(mem, slot)
         self._make_body()
 
-        if common_variables is not None:
-            self.body.append("\n" + self.config.make_common_variables_params())
+        self.body.append("\n" + self.config.make_common_variables_params())
 
         if array_command is not None:
             array_header, array_body = self.config.array_header_with_cmd(array_command)

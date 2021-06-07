@@ -56,23 +56,30 @@ def __main__():
     # workflow
     workflow_parser = subparsers.add_parser("workflow", aliases=["w", "setting", "settings", "s"], help="run qsubpy with workflow (setting) mode")
     workflow_parser.add_argument("workflow", metavar="Workflow Yaml Path", type=str, help="Workflow yaml you would like to run with qsub")
+    workflow_parser.add_argument("--common_variables", type=str, nargs="*")
     add_default_args(workflow_parser, handler=workflow_mode_handler)
-
+    
     # cmd, file and settings by subparsers
 
     args = parser.parse_args()
+    print(args)
+
 
     # set log level
-    if args.log_level == "error":
-        log_level = logging.ERROR
-    elif args.log_level == "warning":
-        log_level = logging.WARNING
-    elif args.log_level == "warn":
-        log_level = logging.WARN
-    elif args.log_level == "info":
-        log_level = logging.INFO
+    
+    if hasattr(args, "log_level"):
+        if args.log_level == "error":
+            log_level = logging.ERROR
+        elif args.log_level == "warning":
+            log_level = logging.WARNING
+        elif args.log_level == "warn":
+            log_level = logging.WARN
+        elif args.log_level == "info":
+            log_level = logging.INFO
+        else:
+            log_level = logging.DEBUG
     else:
-        log_level = logging.DEBUG
+        log_level = logging.INFO
 
     # set logger
     logging.basicConfig(handlers=[ColorfulHandler()], level=log_level)

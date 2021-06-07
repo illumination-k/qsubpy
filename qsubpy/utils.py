@@ -109,7 +109,6 @@ def make_sh_file(
         array_command=array_command,
         mem=mem,
         slot=slot,
-        common_variables=common_variables,
     )
 
     script += cmd
