@@ -5,7 +5,12 @@ import argparse
 from typing import Dict, List, Optional
 from config import read_config
 
-from qsubpy.utils import make_sh_file, read_sh, make_singularity_command, sanitize_dict_key
+from qsubpy.utils import (
+    make_sh_file,
+    read_sh,
+    make_singularity_command,
+    sanitize_dict_key,
+)
 from qsubpy.qsub import Qsub
 
 import logging
@@ -105,7 +110,9 @@ class Stage:
         commands = [c for c in map(stage.get, command_keys) if c is not None]
 
         if len(commands) >= 2:
-            raise RuntimeError("You cannot use run, command or cmd together in the same stage!")
+            raise RuntimeError(
+                "You cannot use run, command or cmd together in the same stage!"
+            )
         elif len(commands) == 1:
             self.cmd = commands
         elif len(commands) == 0:

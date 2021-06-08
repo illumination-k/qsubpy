@@ -235,6 +235,10 @@ order = ["-hold_jid", "{JID}"]
 
 [jid]
 "Your (job|job-array) (?P<jid>\\d{8})"
+
+[singularity]
+image_root = "~/singularity_img"
+default_ext = "sif"
 '''
 
 

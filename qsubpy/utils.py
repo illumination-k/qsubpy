@@ -19,12 +19,10 @@ def sanitize_dict_key(d: Dict) -> Dict:
     return d
 
 
-
 def add_default_args(parser: ArgumentParser, handler) -> ArgumentParser:
     parser.add_argument("--mem", type=str, default="4G", help="default memory")
     parser.add_argument("--slot", type=str, default="1", help="default slots")
     parser.add_argument("-n", "--name", type=str, default=None, help="job name")
-
 
     parser.add_argument(
         "--dry_run", action="store_true", help="Only make sh files for qsub. not run."

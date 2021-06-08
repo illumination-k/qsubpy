@@ -7,6 +7,7 @@ logger = logging.getLogger(__name__)
 
 from qsubpy import run
 from qsubpy.utils import add_default_args
+from qsubpy.validator import CommonVariableValidator
 
 # set color logger
 mapping = {
@@ -108,10 +109,9 @@ def __main__():
         help="Workflow yaml you would like to run with qsub",
     )
     workflow_parser.add_argument(
-        "-cv", "--common_variables", type=str, nargs="*", default=[]
+        "-cv", "--common_variables", type=str, nargs="*", metavar="", default=[], choices=CommonVariableValidator()
     )
     add_default_args(workflow_parser, handler=workflow_mode_handler)
-
 
     args = parser.parse_args()
     logger.debug(args)
