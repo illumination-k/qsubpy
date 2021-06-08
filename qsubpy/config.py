@@ -15,6 +15,7 @@ def no_exist_msg(s: str) -> str:
 
     return f"{s} do not exist in qsubpy_config.toml"
 
+
 class Resource:
     def __init__(self, config: Dict) -> None:
         self.resource_params: str = config["resource"]["header"].rstrip("\n")
@@ -30,6 +31,7 @@ class Resource:
             "{slot}", str(slot)
         )
 
+
 class SingularityConfig:
     def __init__(self, config: Dict) -> None:
         singularity = config.get("singularity")
@@ -42,7 +44,7 @@ class SingularityConfig:
     def singularity_image(self, image: str, root: Optional[str]) -> str:
         if not image.endswith(self.singularity_default_ext):
             image += f".{self.singularity_default_ext}"
-        
+
         # image is abspath
         if image.startswith(os.path.sep) or image.startswith("~"):
             return image
@@ -54,9 +56,10 @@ class SingularityConfig:
         # use default root information
         if self.singularity_image_root is not None:
             return os.path.join(self.singularity_image_root, image)
-        
+
         # return image only
         return image
+
 
 #!TODO: add log path
 #!TODO: add singularity

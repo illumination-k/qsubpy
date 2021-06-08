@@ -1,6 +1,7 @@
 from qsubpy.config import Config
 from typing import Optional, List
 
+
 class Template:
     def __init__(self, config: Config):
         self.header = []
@@ -33,16 +34,6 @@ class Template:
         self.body.append("")
 
         return self.header + self.body
-
-
-def make_common_variables_params(common_variables):
-    if common_variables is None:
-        return ""
-
-    ret = []
-    for k, v in common_variables.items():
-        ret.append(k + "=" + str(v))
-    return "\n".join(ret)
 
 
 # TODO! implement chunk mode... below is example

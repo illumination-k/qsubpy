@@ -26,14 +26,18 @@ class ColorfulHandler(logging.StreamHandler):
         record.levelname = mapping[record.levelname]
         super().emit(record)
 
+
 def command_mode_handler(args: argparse.Namespace):
     run.command_mode(args)
+
 
 def file_mode_handler(args: argparse.Namespace):
     run.file_mode(args)
 
+
 def workflow_mode_handler(args: argparse.Namespace):
     run.workflow_mode(args)
+
 
 def __main__():
     parser = argparse.ArgumentParser(
@@ -44,29 +48,53 @@ def __main__():
     subparsers = parser.add_subparsers()
 
     # cmd
-    cmd_parser = subparsers.add_parser("command", aliases=["cmd", "c"], help="run qusbpy with command mode")
-    cmd_parser.add_argument("command", metavar="Command", type=str, help="command you would like to run with qsub")
+    cmd_parser = subparsers.add_parser(
+        "command", aliases=["cmd", "c"], help="run qusbpy with command mode"
+    )
+    cmd_parser.add_argument(
+        "command",
+        metavar="Command",
+        type=str,
+        help="command you would like to run with qsub",
+    )
     add_default_args(cmd_parser, handler=command_mode_handler)
 
     # file
-    file_parser = subparsers.add_parser("file", aliases=["f"], help="run qsubpy with file mode")
-    file_parser.add_argument("file", metavar="Script File Path", type=str, help="File you would like to run with qsub")
+    file_parser = subparsers.add_parser(
+        "file", aliases=["f"], help="run qsubpy with file mode"
+    )
+    file_parser.add_argument(
+        "file",
+        metavar="Script File Path",
+        type=str,
+        help="File you would like to run with qsub",
+    )
     add_default_args(file_parser, handler=file_mode_handler)
 
     # workflow
-    workflow_parser = subparsers.add_parser("workflow", aliases=["w", "setting", "settings", "s"], help="run qsubpy with workflow (setting) mode")
-    workflow_parser.add_argument("workflow", metavar="Workflow Yaml Path", type=str, help="Workflow yaml you would like to run with qsub")
-    workflow_parser.add_argument("-cv", "--common_variables", type=str, nargs="*", default=[])
+    workflow_parser = subparsers.add_parser(
+        "workflow",
+        aliases=["w", "setting", "settings", "s"],
+        help="run qsubpy with workflow (setting) mode",
+    )
+    workflow_parser.add_argument(
+        "workflow",
+        metavar="Workflow Yaml Path",
+        type=str,
+        help="Workflow yaml you would like to run with qsub",
+    )
+    workflow_parser.add_argument(
+        "-cv", "--common_variables", type=str, nargs="*", default=[]
+    )
     add_default_args(workflow_parser, handler=workflow_mode_handler)
-    
+
     # cmd, file and settings by subparsers
 
     args = parser.parse_args()
     logger.debug(args)
 
-
     # set log level
-    
+
     if hasattr(args, "log_level"):
         if args.log_level == "error":
             log_level = logging.ERROR

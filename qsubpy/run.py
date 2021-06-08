@@ -48,6 +48,7 @@ def file_mode(args: argparse.Namespace):
     if not args.dry_run:
         subprocess.run(["qsub", name])
 
+
 class Settings:
     def __init__(self, path: str, dry_run: bool):
         with open(path, "r") as f:
@@ -113,11 +114,15 @@ class Stage:
 
         if self.runs_on is not None and stage.get("file") is None:
             config = read_config()
-            self.cmd = [make_singularity_command(
-                command = self.cmd,
-                singularity_img = config.singularity_config.singularity_image(image=self.runs_on, root=None),
-                bind_dirs=None
-            )]
+            self.cmd = [
+                make_singularity_command(
+                    command=self.cmd,
+                    singularity_img=config.singularity_config.singularity_image(
+                        image=self.runs_on, root=None
+                    ),
+                    bind_dirs=None,
+                )
+            ]
         elif self.runs_on is not None and stage.get("file") is not None:
             raise ValueError("file and runs_on cannot use together")
 
@@ -165,6 +170,7 @@ def parse_common_variables(common_variables_str: List[str]) -> Dict[str, str]:
         k, v = l.rstrip("\n").split("=")
         d.setdefault(k, v)
     return d
+
 
 def workflow_mode(args: argparse.Namespace):
     import time
