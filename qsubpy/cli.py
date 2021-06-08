@@ -57,11 +57,35 @@ def __main__():
         type=str,
         help="command you would like to run with qsub",
     )
+    cmd_parser.add_argument(
+        "--ls",
+        type=str,
+        default=None,
+        help="pattern of ls, translate to array job. You can use elem variable in command or the sh file.",
+    )
+    cmd_parser.add_argument(
+        "--array_cmd",
+        type=str,
+        default=None,
+        help="command for array job. You can use elem variable in command or the sh file.",
+    )
     add_default_args(cmd_parser, handler=command_mode_handler)
 
     # file
     file_parser = subparsers.add_parser(
         "file", aliases=["f"], help="run qsubpy with file mode"
+    )
+    file_parser.add_argument(
+        "--ls",
+        type=str,
+        default=None,
+        help="pattern of ls, translate to array job. You can use elem variable in command or the sh file.",
+    )
+    file_parser.add_argument(
+        "--array_cmd",
+        type=str,
+        default=None,
+        help="command for array job. You can use elem variable in command or the sh file.",
     )
     file_parser.add_argument(
         "file",
@@ -88,7 +112,6 @@ def __main__():
     )
     add_default_args(workflow_parser, handler=workflow_mode_handler)
 
-    # cmd, file and settings by subparsers
 
     args = parser.parse_args()
     logger.debug(args)

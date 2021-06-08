@@ -5,7 +5,7 @@ import argparse
 from typing import Dict, List, Optional
 from config import read_config
 
-from qsubpy.utils import make_sh_file, read_sh, make_singularity_command
+from qsubpy.utils import make_sh_file, read_sh, make_singularity_command, sanitize_dict_key
 from qsubpy.qsub import Qsub
 
 import logging
@@ -53,6 +53,7 @@ class Settings:
     def __init__(self, path: str, dry_run: bool):
         with open(path, "r") as f:
             settings = yaml.safe_load(f)
+            settings = sanitize_dict_key(settings)
         self.stages = settings.get("stages")
         if self.stages is None:
             raise ValueError("Stages need")
@@ -90,29 +91,32 @@ class Settings:
 
 class Stage:
     def __init__(self, stage: dict, settings: Settings):
+        stage = sanitize_dict_key(stage)
         self.settings = settings
         self.name = stage.get("name")
         self.mem = stage.get("mem", settings.defalut_mem)
         self.slot = stage.get("slot", settings.default_slot)
         self.ls_patten = stage.get("ls")
         self.array_cmd = stage.get("array_cmd")
-        self.runs_on = stage.get("runs-on")
+        self.runs_on = stage.get("runs_on")
 
         # set command
-        cmd = stage.get("cmd")
-        if cmd is None:
-            cmd = stage.get("run")
-            if cmd is None:
-                path = stage.get("file")
-                if path is None:
-                    raise RuntimeError("run (cmd) or file is required in each stage!")
-                self.cmd = read_sh(path)
-            else:
-                self.cmd = [cmd]
+        command_keys = ["command", "cmd", "run"]
+        commands = [c for c in map(stage.get, command_keys) if c is not None]
+
+        if len(commands) >= 2:
+            raise RuntimeError("You cannot use run, command or cmd together in the same stage!")
+        elif len(commands) == 1:
+            self.cmd = commands
+        elif len(commands) == 0:
+            path = stage.get("file")
+            if path is None:
+                raise RuntimeError("run (cmd) or file is required in each stage!")
         else:
-            self.cmd = [cmd]
+            raise ValueError("Unreachable!")
 
         if self.runs_on is not None and stage.get("file") is None:
+            bind_dirs = stage.get("bind_dirs")
             config = read_config()
             self.cmd = [
                 make_singularity_command(
@@ -120,11 +124,11 @@ class Stage:
                     singularity_img=config.singularity_config.singularity_image(
                         image=self.runs_on, root=None
                     ),
-                    bind_dirs=None,
+                    bind_dirs=bind_dirs,
                 )
             ]
         elif self.runs_on is not None and stage.get("file") is not None:
-            raise ValueError("file and runs_on cannot use together")
+            raise ValueError("file and runs-on cannot use together")
 
     def debug(self):
         logger.debug(f"mem: {self.mem}, slot: {self.slot}")
@@ -167,7 +171,10 @@ class Stage:
 def parse_common_variables(common_variables_str: List[str]) -> Dict[str, str]:
     d = {}
     for l in common_variables_str:
-        k, v = l.rstrip("\n").split("=")
+        kv = l.rstrip("\n").split("=")
+        if len(kv) != 2:
+            raise RuntimeError("common_variables nargs should be like a=b")
+        k, v = kv
         d.setdefault(k, v)
     return d
 
@@ -187,6 +194,7 @@ def workflow_mode(args: argparse.Namespace):
 
     hold_jid = None
     for _stage in settings.stages:
+
         stage_start = time.time()
         # get params
 

@@ -1,9 +1,23 @@
 import logging
-from typing import List, Optional
+from typing import List, Dict, Optional
 from argparse import ArgumentParser
 
 
 logger = logging.getLogger(__name__)
+
+
+def sanitize_dict_key(d: Dict) -> Dict:
+    def change_dict_key(old_key, new_key, default_value=None):
+        nonlocal d
+        d[new_key] = d.pop(old_key, default_value)
+
+    keys = list(d.keys())
+    for key in keys:
+        new_key = key.rstrip("\n").replace("-", "_")
+        change_dict_key(old_key=key, new_key=new_key)
+
+    return d
+
 
 
 def add_default_args(parser: ArgumentParser, handler) -> ArgumentParser:
@@ -11,18 +25,7 @@ def add_default_args(parser: ArgumentParser, handler) -> ArgumentParser:
     parser.add_argument("--slot", type=str, default="1", help="default slots")
     parser.add_argument("-n", "--name", type=str, default=None, help="job name")
 
-    parser.add_argument(
-        "--ls",
-        type=str,
-        default=None,
-        help="pattern of ls, translate to array job. You can use elem variable in command or the sh file.",
-    )
-    parser.add_argument(
-        "--array_cmd",
-        type=str,
-        default=None,
-        help="command for array job. You can use elem variable in command or the sh file.",
-    )
+
     parser.add_argument(
         "--dry_run", action="store_true", help="Only make sh files for qsub. not run."
     )
@@ -38,7 +41,7 @@ def add_default_args(parser: ArgumentParser, handler) -> ArgumentParser:
     return parser
 
 
-def make_uuid():
+def make_uuid() -> str:
     """make uuid4
     Returns:
         str: uuid4
@@ -48,7 +51,7 @@ def make_uuid():
     return "tmp_" + str(uuid.uuid4())
 
 
-def read_sh(path):
+def read_sh(path: str):
     """
     read a sh file. skip comment, shebang and qsub params.
     Args:
@@ -67,8 +70,8 @@ def read_sh(path):
 
 def make_sh_file(
     cmd: list,
-    mem: str,
-    slot: str,
+    mem: Optional[str],
+    slot: Optional[str],
     name: Optional[str],
     ls_pattern: str = None,
     array_command: str = None,
