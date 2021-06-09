@@ -6,7 +6,7 @@ default-slot: 1
 mode: ord
 common-variables:
   fasta: "/path/to/fasta"
-  seq: "'1 2'"
+  seq: "1 2"
 
 stages:
   - name: stage1

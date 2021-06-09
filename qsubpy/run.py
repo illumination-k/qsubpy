@@ -3,7 +3,7 @@ import subprocess
 import argparse
 
 from typing import Dict, List, Optional
-from config import read_config
+from qsubpy.config import read_config
 
 from qsubpy.utils import (
     make_sh_file,

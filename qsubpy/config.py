@@ -141,7 +141,7 @@ class Config:
 
         ret = []
         for k, v in self.common_variables.items():
-            ret.append(k + "=" + str(v))
+            ret.append(k + "=" + "\"" + str(v) + "\"")
         return ret
 
     def common_variables_1linear(self) -> str:
