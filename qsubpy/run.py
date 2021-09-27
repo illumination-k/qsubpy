@@ -97,6 +97,8 @@ class Stage:
         stage = sanitize_dict_key(stage)
         self.settings = settings
         self.name = stage.get("name")
+        if self.name is not None:
+            self.name = self.name.replace(" ", "_")
         self.mem = stage.get("mem", settings.defalut_mem)
         self.slot = stage.get("slot", settings.default_slot)
         self.ls_patten = stage.get("ls")

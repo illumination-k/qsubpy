@@ -32,7 +32,7 @@ stages:
     array-cmd: echo $seq
     runs-on: "salmon"
     bind-dirs: 
-      - /LARGE0/gr10289:/LARGE0/gr10289
-      - /LARGE0/gr10289/RNAseq:/mnt
+      - /mnt:/mnt
+      - /home/user:/home/si
 
     

@@ -28,10 +28,6 @@ class ColorfulHandler(logging.StreamHandler):
         super().emit(record)
 
 
-<<<<<<< HEAD
-def add_args(args):
-    return pass
-=======
 def command_mode_handler(args: argparse.Namespace):
     run.command_mode(args)
 
@@ -42,7 +38,6 @@ def file_mode_handler(args: argparse.Namespace):
 
 def workflow_mode_handler(args: argparse.Namespace):
     run.workflow_mode(args)
->>>>>>> 077c34d22be408326d435f25b2338cfd76f91c34
 
 
 def __main__():

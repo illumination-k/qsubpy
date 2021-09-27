@@ -37,13 +37,18 @@ class SingularityConfig:
         singularity = config.get("singularity")
         if singularity is None:
             logger.warn(no_exist_msg("singularity"))
+            self.singularity_image_root = None
+            self.singularity_default_ext = None
         else:
             self.singularity_image_root = singularity.get("image_root")
             self.singularity_default_ext = singularity.get("default_ext")
 
     def singularity_image(self, image: str, root: Optional[str]) -> str:
-        if not image.endswith(self.singularity_default_ext):
-            image += f".{self.singularity_default_ext}"
+        if self.singularity_default_ext is None:
+            logger.warn(f"singularity default ext is not set in config.toml, so use image name: {image} directly!")
+        else:
+            if not image.endswith(self.singularity_default_ext):
+                image += f".{self.singularity_default_ext}"
 
         # image is abspath
         if image.startswith(os.path.sep) or image.startswith("~"):
