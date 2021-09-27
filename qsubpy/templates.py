@@ -1,13 +1,14 @@
 from qsubpy.config import Config
+from typing import Optional, List
 
 
 class Template:
     def __init__(self, config: Config):
         self.header = []
-        self.body = [""]
+        self.body = []
         self.config = config
 
-    def _make_header(self, mem: str, slot: str):
+    def _make_header(self, mem: Optional[str], slot: Optional[str]):
         self.header.append(self.config.header)
         self.header.append(self.config.resource(mem, slot))
 
@@ -16,16 +17,14 @@ class Template:
 
     def make_templates(
         self,
-        array_command: str = None,
-        mem: str = None,
-        slot: str = None,
-        common_variables=None,
-    ) -> str:
+        array_command: Optional[str] = None,
+        mem: Optional[str] = None,
+        slot: Optional[str] = None,
+    ) -> List[str]:
         self._make_header(mem, slot)
         self._make_body()
 
-        if common_variables is not None:
-            self.body.append("\n" + self.config.make_common_variables_params())
+        self.body.append("\n" + self.config.make_common_variables_params())
 
         if array_command is not None:
             array_header, array_body = self.config.array_header_with_cmd(array_command)

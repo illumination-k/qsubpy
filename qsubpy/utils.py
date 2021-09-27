@@ -1,10 +1,45 @@
-import argparse
 import logging
+from typing import List, Dict, Optional
+from argparse import ArgumentParser
+
 
 logger = logging.getLogger(__name__)
 
 
-def make_uuid():
+def sanitize_dict_key(d: Dict) -> Dict:
+    def change_dict_key(old_key, new_key, default_value=None):
+        nonlocal d
+        d[new_key] = d.pop(old_key, default_value)
+
+    keys = list(d.keys())
+    for key in keys:
+        new_key = key.rstrip("\n").replace("-", "_")
+        change_dict_key(old_key=key, new_key=new_key)
+
+    return d
+
+
+def add_default_args(parser: ArgumentParser, handler) -> ArgumentParser:
+    parser.add_argument("--mem", type=str, default="4G", help="default memory")
+    parser.add_argument("--slot", type=str, default="1", help="default slots")
+    parser.add_argument("-n", "--name", type=str, default=None, help="job name")
+
+    parser.add_argument(
+        "--dry_run", action="store_true", help="Only make sh files for qsub. not run."
+    )
+    parser.add_argument(
+        "--log_level",
+        default="info",
+        choices=["error", "warning", "warn", "info", "debug"],
+        help="set log level",
+    )
+
+    parser.set_defaults(handler=handler)
+
+    return parser
+
+
+def make_uuid() -> str:
     """make uuid4
     Returns:
         str: uuid4
@@ -14,7 +49,7 @@ def make_uuid():
     return "tmp_" + str(uuid.uuid4())
 
 
-def read_sh(path):
+def read_sh(path: str):
     """
     read a sh file. skip comment, shebang and qsub params.
     Args:
@@ -33,9 +68,9 @@ def read_sh(path):
 
 def make_sh_file(
     cmd: list,
-    mem: str,
-    slot: str,
-    name: str,
+    mem: Optional[str],
+    slot: Optional[str],
+    name: Optional[str],
     ls_pattern: str = None,
     array_command: str = None,
     chunks=None,
@@ -74,7 +109,6 @@ def make_sh_file(
         array_command=array_command,
         mem=mem,
         slot=slot,
-        common_variables=common_variables,
     )
 
     script += cmd
@@ -88,3 +122,20 @@ def make_sh_file(
         f.write("\n".join(script))
 
     return name
+
+
+def make_singularity_command(
+    command: List[str], singularity_img: str, bind_dirs: Optional[List[str]] = None
+) -> str:
+    """make singularity command from the raw command
+    singularity exec -B binddir1 -B binddir2 singularity_img cmd
+    """
+
+    ret = ["singularity", "exec"]
+
+    if bind_dirs is not None:
+        for bind_dir in bind_dirs:
+            ret += ["-B", bind_dir]
+
+    ret += [singularity_img] + command
+    return " ".join(ret)

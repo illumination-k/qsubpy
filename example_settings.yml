@@ -1,11 +1,12 @@
-job_name: "example"
+job-name: "example"
 
-default_mem: 4G
-default_slot: 1
+default-mem: 4G
+default-slot: 1
 
 mode: ord
-common_variables:
+common-variables:
   fasta: "/path/to/fasta"
+  seq: "1 2"
 
 stages:
   - name: stage1
@@ -24,6 +25,14 @@ stages:
 
   - name: stage4
     cmd: echo $elem
-    array_cmd: echo 'a b'
+    array-cmd: echo 'a b'
+
+  - name: stage5
+    run: echo $elem
+    array-cmd: echo $seq
+    runs-on: "salmon"
+    bind-dirs: 
+      - /LARGE0/gr10289:/LARGE0/gr10289
+      - /LARGE0/gr10289/RNAseq:/mnt
 
     
