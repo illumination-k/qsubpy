@@ -54,12 +54,10 @@ class Settings:
         self.job_name = settings.get("job_name")
         self.defalut_mem = settings.get("default_mem")
         self.default_slot = settings.get("default_slot")
-        self.common_varialbes = settings.get("common_variables")
+        self.common_varialbes = settings.get("common_variables", [])
         self.remove = settings.get("remove")
-        self.mode = settings.get("mode")
+        self.mode = settings.get("mode", "ord")
         self.test = settings.get("test") is not None
-        if self.mode is None:
-            self.mode = "sync"
 
         if self.mode not in ["sync", "ord", "dry_run"]:
             raise ValueError(f"invalid mode {self.mode}, plz use sync, ord or dry_run")
@@ -144,8 +142,8 @@ def setting_mode(path, dry_run):
     hold_jid = None
     for _stage in settings.stages:
         stage_start = time.time()
-        # get params
 
+        # get params
         stage = Stage(_stage, settings)
 
         # update hold jid if mode is ord
@@ -154,7 +152,8 @@ def setting_mode(path, dry_run):
         stage_end = time.time()
         key = stage.name + "_proceeded_time"
         time_dict[key] = stage_end - stage_start
-        logger.info(f"proceeded time is {time_dict[key]}")
+        if settings.mode == "sync":
+            logger.info(f"proceeded time is {time_dict[key]}")
 
     end_time = time.time()
     if settings.mode == "sync":

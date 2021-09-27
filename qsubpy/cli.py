@@ -28,6 +28,10 @@ class ColorfulHandler(logging.StreamHandler):
         super().emit(record)
 
 
+def add_args(args):
+    return pass
+
+
 def __main__():
     parser = argparse.ArgumentParser(
         description="wrapper for qsub of UGE. easy to use array job and build workflow."
