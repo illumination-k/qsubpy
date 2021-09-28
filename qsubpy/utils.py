@@ -90,9 +90,8 @@ def make_sh_file(
         str: generated file name
     """
     from qsubpy.templates import Template
-    from qsubpy.config import read_config, generate_defulat_config
+    from qsubpy.config import read_config
 
-    generate_defulat_config()
     config = read_config()
     if common_variables is not None:
         config.common_variables.update(common_variables)
