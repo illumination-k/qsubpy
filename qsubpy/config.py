@@ -247,7 +247,7 @@ default_ext = "sif"
 '''
 
 
-def generate_defulat_config():
+def generate_default_config():
     path = get_default_config_path()
 
     if os.path.exists(path):

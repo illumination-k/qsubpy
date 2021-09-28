@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 from qsubpy import run
 from qsubpy.utils import add_default_args
 from qsubpy.validator import CommonVariableValidator
-from qsubpy.config import generate_defulat_config
+from qsubpy.config import generate_default_config
 
 # set color logger
 mapping = {
@@ -117,7 +117,7 @@ def __main__():
     args = parser.parse_args()
     logger.debug(args)
 
-    generate_config()
+    generate_default_config()
     # set log level
     if hasattr(args, "log_level"):
         if args.log_level == "error":
